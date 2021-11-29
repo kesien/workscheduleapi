@@ -67,6 +67,7 @@ x64/
 Scheduler.db*
 Scheduler.db-shm
 Scheduler.db-wal
+appsettings.Development.json
 
 # Visual C++ cache files
 ipch/
