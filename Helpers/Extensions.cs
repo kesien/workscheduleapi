@@ -44,6 +44,7 @@ namespace WorkScheduleMaker.Helpers
                 if (isDevelopment) 
                 {
                     options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+                    Console.WriteLine("SQLite running!");
                 }
                 else 
                 {
@@ -55,7 +56,6 @@ namespace WorkScheduleMaker.Helpers
 
         private static string GetConnectionString()
         {
-            var port = Environment.GetEnvironmentVariable("PORT");
             string connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var databaseUri = new Uri(connectionUrl);
             string db = databaseUri.LocalPath.TrimStart('/');

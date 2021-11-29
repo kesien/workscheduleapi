@@ -42,6 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
+    Console.WriteLine("It's in develipment!");
 } else {
     app.UseExceptionHandler(builder => {
         builder.Run(async context => {
@@ -81,4 +82,5 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine(ex.StackTrace);
     }
 }
+Console.WriteLine(IsDevelopment);
 app.Run();
