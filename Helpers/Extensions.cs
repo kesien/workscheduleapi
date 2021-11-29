@@ -41,15 +41,15 @@ namespace WorkScheduleMaker.Helpers
         {
             services.AddDbContext<ApplicationDbContext>(options => 
             {
-                if (isDevelopment) 
+               /*  if (isDevelopment) 
                 {
                     options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
                     Console.WriteLine("SQLite running!");
                 }
                 else 
-                {
+                { */
                     options.UseNpgsql(GetConnectionString());
-                }
+                //}
             });
             return services;
         }
