@@ -64,6 +64,9 @@ x64/
 *.log
 *.svclog
 *.scc
+Scheduler.db*
+Scheduler.db-shm
+Scheduler.db-wal
 
 # Visual C++ cache files
 ipch/
