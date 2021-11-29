@@ -81,5 +81,4 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine(ex.StackTrace);
     }
 }
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 app.Run();
