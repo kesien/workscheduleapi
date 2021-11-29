@@ -78,7 +78,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine("Something went wrong!", ex.StackTrace);
+        Console.WriteLine(ex.StackTrace);
     }
 }
 app.Run();
