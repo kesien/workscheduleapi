@@ -1,13 +1,7 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Net;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using WorkScheduleMaker.Data;
 using WorkScheduleMaker.Data.Repositories;
 using WorkScheduleMaker.Entities;
@@ -20,7 +14,8 @@ string connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 var databaseUri = new Uri(connectionUrl);
 string db = databaseUri.LocalPath.TrimStart('/');
 string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
-var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;";
+var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;Include Error Detail";
+bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 // Add services to the container.
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
@@ -34,8 +29,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(c => c.AddProfile<AutoMapperProfiles>(), typeof(WebApplication));
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
 {
-    options.UseNpgsql(connectionString);
-    //options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    if (IsDevelopment) 
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+    else 
+    {
+        options.UseNpgsql(connectionString);
+    }
 });
 builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.Configure<IdentityOptions>(options =>
