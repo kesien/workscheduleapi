@@ -71,7 +71,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
+        await context.Database.MigrateAsync();
         var userManager = services.GetRequiredService<UserManager<User>>();
         Seed.SeedUsers(userManager);
         Seed.SeedHolidays(context);
