@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WorkScheduleMaker.Data;
 
 namespace WorkScheduleMaker.Helpers
 {
@@ -33,6 +35,33 @@ namespace WorkScheduleMaker.Helpers
             response.Headers.Add("Application-Error", message);
             response.Headers.Add("Access-Control-Expose-Headers", "Application-Error");
             response.Headers.Add("Access-Control-Allow-Origin", "*");
+        }
+
+        public static IServiceCollection AddDatabaseConnection(this IServiceCollection services, IConfiguration configuration, bool isDevelopment)
+        {
+            services.AddDbContext<ApplicationDbContext>(options => 
+            {
+                if (isDevelopment) 
+                {
+                    options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+                }
+                else 
+                {
+                    options.UseNpgsql(GetConnectionString());
+                }
+            });
+            return services;
+        }
+
+        private static string GetConnectionString()
+        {
+            var port = Environment.GetEnvironmentVariable("PORT");
+            string connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var databaseUri = new Uri(connectionUrl);
+            string db = databaseUri.LocalPath.TrimStart('/');
+            string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;Include Error Detail=True;";
+            return connectionString;
         }
     }
 }

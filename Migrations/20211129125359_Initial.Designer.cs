@@ -11,8 +11,8 @@ using WorkScheduleMaker.Data;
 namespace WorkScheduleMaker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211115150506_AddSchedule6")]
-    partial class AddSchedule6
+    [Migration("20211129125359_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,15 +40,15 @@ namespace WorkScheduleMaker.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "6ef73257-2fb8-49d9-9f34-ed461d3b8b24",
-                            ConcurrencyStamp = "f5ad880a-62e6-488a-b4f0-2933944fbe67",
+                            Id = "61d2da6d-cea6-4262-9a92-77be02dffd0b",
+                            ConcurrencyStamp = "5b34cd55-93b4-4c6f-939f-ba37a494da53",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "a86a5ac2-9f89-45ef-b26f-bd646f6c8afc",
-                            ConcurrencyStamp = "6f8e570e-8632-4022-a84b-01a169869310",
+                            Id = "f13baefa-27dc-41b9-81ac-18cd25d49c17",
+                            ConcurrencyStamp = "e0b5df05-b9b3-469f-b7cf-5e733e1fdcfb",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -69,22 +69,25 @@ namespace WorkScheduleMaker.Migrations
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Day", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsHolidayOrWeekend")
+                    b.Property<bool>("IsHoliday")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("MonhtlyScheduleId")
+                    b.Property<bool>("IsWeekend")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("MonthlyScheduleId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MonhtlyScheduleId");
+                    b.HasIndex("MonthlyScheduleId");
 
                     b.ToTable("Days");
                 });
@@ -95,7 +98,10 @@ namespace WorkScheduleMaker.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("DayId")
+                    b.Property<Guid?>("DayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRequest")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
@@ -111,14 +117,31 @@ namespace WorkScheduleMaker.Migrations
                     b.ToTable("ForenoonSchedules");
                 });
 
+            modelBuilder.Entity("WorkScheduleMaker.Entities.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Holidays");
+                });
+
             modelBuilder.Entity("WorkScheduleMaker.Entities.HolidaySchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("DayId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid?>("DayId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -133,13 +156,16 @@ namespace WorkScheduleMaker.Migrations
                     b.ToTable("HolidaySchedules");
                 });
 
-            modelBuilder.Entity("WorkScheduleMaker.Entities.MonhtlySchedule", b =>
+            modelBuilder.Entity("WorkScheduleMaker.Entities.MonthlySchedule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Month")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NumOfWorkdays")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Year")
@@ -156,7 +182,10 @@ namespace WorkScheduleMaker.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("DayId")
+                    b.Property<Guid?>("DayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRequest")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
@@ -174,9 +203,9 @@ namespace WorkScheduleMaker.Migrations
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Request", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
@@ -193,6 +222,39 @@ namespace WorkScheduleMaker.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Requests");
+                });
+
+            modelBuilder.Entity("WorkScheduleMaker.Entities.Summary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Forenoon")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Holiday")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MonhtlyScheduleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MonthlyScheduleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Morning")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MonthlyScheduleId");
+
+                    b.ToTable("Summaries");
                 });
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.User", b =>
@@ -256,9 +318,9 @@ namespace WorkScheduleMaker.Migrations
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Day", b =>
                 {
-                    b.HasOne("WorkScheduleMaker.Entities.MonhtlySchedule", null)
+                    b.HasOne("WorkScheduleMaker.Entities.MonthlySchedule", null)
                         .WithMany("Days")
-                        .HasForeignKey("MonhtlyScheduleId");
+                        .HasForeignKey("MonthlyScheduleId");
                 });
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Forenoonschedule", b =>
@@ -317,6 +379,17 @@ namespace WorkScheduleMaker.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WorkScheduleMaker.Entities.Summary", b =>
+                {
+                    b.HasOne("WorkScheduleMaker.Entities.MonthlySchedule", "MonthlySchedule")
+                        .WithMany("Summaries")
+                        .HasForeignKey("MonthlyScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MonthlySchedule");
+                });
+
             modelBuilder.Entity("WorkScheduleMaker.Entities.Day", b =>
                 {
                     b.Navigation("UsersOnHoliday");
@@ -326,9 +399,11 @@ namespace WorkScheduleMaker.Migrations
                     b.Navigation("UsersScheduledForMorning");
                 });
 
-            modelBuilder.Entity("WorkScheduleMaker.Entities.MonhtlySchedule", b =>
+            modelBuilder.Entity("WorkScheduleMaker.Entities.MonthlySchedule", b =>
                 {
                     b.Navigation("Days");
+
+                    b.Navigation("Summaries");
                 });
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.User", b =>

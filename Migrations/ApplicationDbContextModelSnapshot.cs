@@ -38,15 +38,15 @@ namespace WorkScheduleMaker.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3c2c8c25-8db9-4696-a3d3-1648eec7f1ac",
-                            ConcurrencyStamp = "62c5271d-e4f7-44ab-8a3d-c8c524cf0f9f",
+                            Id = "61d2da6d-cea6-4262-9a92-77be02dffd0b",
+                            ConcurrencyStamp = "5b34cd55-93b4-4c6f-939f-ba37a494da53",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "824d14f7-b209-4f42-aced-54fc221267b4",
-                            ConcurrencyStamp = "4ef1ea73-cc2e-4941-b53c-a31246adcb5d",
+                            Id = "f13baefa-27dc-41b9-81ac-18cd25d49c17",
+                            ConcurrencyStamp = "e0b5df05-b9b3-469f-b7cf-5e733e1fdcfb",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

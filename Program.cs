@@ -9,12 +9,7 @@ using WorkScheduleMaker.Helpers;
 using WorkScheduleMaker.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT");
-string connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-var databaseUri = new Uri(connectionUrl);
-string db = databaseUri.LocalPath.TrimStart('/');
-string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
-var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;Include Error Detail=True;";
+
 bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 // Add services to the container.
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -27,17 +22,7 @@ builder.Services.AddScoped<IRepository<Holiday>, HolidayRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(c => c.AddProfile<AutoMapperProfiles>(), typeof(WebApplication));
-builder.Services.AddDbContext<ApplicationDbContext>(options => 
-{
-    if (IsDevelopment) 
-    {
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-    }
-    else 
-    {
-        options.UseNpgsql(connectionString);
-    }
-});
+builder.Services.AddDatabaseConnection(builder.Configuration, IsDevelopment);
 builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.Configure<IdentityOptions>(options =>
 {
