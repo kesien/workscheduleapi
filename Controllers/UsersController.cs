@@ -76,7 +76,8 @@ namespace WorkScheduleMaker.Controllers
             {
                 await _userManager.AddToRoleAsync(newUser, "User");
             }
-            return StatusCode(201);
+            var newUserDto = _mapper.Map<UserToListDto>(newUser);
+            return CreatedAtAction(nameof(GetUser), new { Id = newUser.Id}, newUserDto);
         }
 
         [Authorize(Roles = "Administrator,User")]
@@ -105,6 +106,10 @@ namespace WorkScheduleMaker.Controllers
             }
             userToChange.UserName = userForUpdateDto.UserName ?? userToChange.UserName;
             userToChange.Name = userForUpdateDto.Name ?? userToChange.Name;
+            if (roles.Contains("Administrator"))
+            {
+                userToChange.Role = userForUpdateDto.Role ?? userToChange.Role;
+            }
             await _userManager.UpdateAsync(userToChange);
             return NoContent();
         }

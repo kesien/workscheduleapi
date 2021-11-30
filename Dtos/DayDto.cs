@@ -1,7 +1,11 @@
-﻿namespace WorkScheduleMaker.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WorkScheduleMaker.Dtos
 {
     public class DayDto
     {
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime Date { get; set; }
         public bool IsHoliday { get; set; }
         public bool IsWeekend { get; set; }

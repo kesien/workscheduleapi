@@ -18,6 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IRepository<Request>, RequestRepository>();
 builder.Services.AddScoped<IRepository<MonthlySchedule>, ScheduleRepository>();
 builder.Services.AddScoped<IRepository<Holiday>, HolidayRepository>();
+builder.Services.AddScoped<IRepository<Day>, DayRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

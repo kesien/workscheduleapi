@@ -69,6 +69,7 @@ namespace WorkScheduleMaker.Data
                 var holidays = JsonConvert.DeserializeObject<List<Holiday>>(holidaysData);
                 foreach (var holiday in holidays)
                 {
+                    holiday.IsFix = true;
                     context.Holidays.Add(holiday);
                 }
                 context.SaveChanges();

@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Bson;
 using WorkScheduleMaker.Data.Repositories;
 using WorkScheduleMaker.Dtos;
 using WorkScheduleMaker.Entities;
@@ -15,16 +17,18 @@ namespace WorkScheduleMaker.Services
         private readonly IHolidayService _holidayService;
         private readonly IMapper _mapper;
         private readonly Random _random;
+        private readonly IRepository<Day> _dayRepository;
 
 
         #region Constructor
-        public ScheduleService(UserManager<User> userManager, IRepository<MonthlySchedule> scheduleRepository, IMapper mapper, IHolidayService holidayService)
+        public ScheduleService(UserManager<User> userManager, IRepository<MonthlySchedule> scheduleRepository, IMapper mapper, IHolidayService holidayService, IRepository<Day> dayRepository)
         {
             _userManager = userManager;
             _scheduleRepository = scheduleRepository;
             _mapper = mapper;
             _random = new Random();
             _holidayService = holidayService;
+            _dayRepository = dayRepository;
         }
         #endregion
 
@@ -88,7 +92,10 @@ namespace WorkScheduleMaker.Services
                 previousDay = day;
                 helperCounter++;
             }
+            schedule.IsSaved = true;
+            _scheduleRepository.Add(schedule);
             schedule.Summaries = GenerateSummary(userSchedules);
+            await _scheduleRepository.SaveAsync();
             return schedule;
         }
 
@@ -113,11 +120,16 @@ namespace WorkScheduleMaker.Services
         /// </summary>
         /// <param name="id">The ID of the schedule</param>
         /// <returns></returns>
-        public async Task DeleteSchedule(Guid id)
+        public async Task<bool> DeleteSchedule(Guid id)
         {
             var schedule = await _scheduleRepository.GetById(id);
+            if (schedule is null) 
+            {
+                return false;
+            }
             _scheduleRepository.Delete(schedule);
             await _scheduleRepository.SaveAsync();
+            return true;
         }
         
         /// <summary>
@@ -126,9 +138,51 @@ namespace WorkScheduleMaker.Services
         /// <param name="id">ID of the schedule</param>
         /// <param name="updateScheduleDto">DTO from the request</param>
         /// <returns></returns>
-        public Task UpdateSchedule(Guid id, UpdateScheduleDto updateScheduleDto)
+        public async Task<bool> UpdateSchedule(Guid id, List<DayDto> dayDtos)
         {
-            throw new NotImplementedException();
+            var schedule = await _scheduleRepository.GetById(id);
+            if (schedule is null) 
+            {
+                return false;
+            }
+            var days = await _dayRepository.FindAllAsync(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month);
+
+            foreach (var dayDto in dayDtos)
+            {
+                var dayToDelete = days.Where(day => day.Date == dayDto.Date).FirstOrDefault();
+                if (dayToDelete is not null) 
+                {
+                    _dayRepository.Delete(dayToDelete);
+                }
+                var dayFromDto = _mapper.Map<Day>(dayDto);
+                var morningSchedules = dayFromDto.UsersScheduledForMorning.Select(schedule => new MorningSchedule 
+                { 
+                    UserId = schedule.UserId, 
+                    IsRequest = schedule.IsRequest,
+
+                }).ToList();
+                var forenoonSchedules = dayFromDto.UsersScheduledForForenoon.Select(schedule => new Forenoonschedule 
+                { 
+                    UserId = schedule.UserId, 
+                    IsRequest = schedule.IsRequest,
+
+                }).ToList();
+                var holidaySchedules = dayFromDto.UsersOnHoliday.Select(schedule => new HolidaySchedule
+                {
+                    UserId = schedule.UserId
+                }).ToList();
+                var newDay = new Day 
+                {
+                    Date = dayFromDto.Date,
+                    UsersOnHoliday = holidaySchedules,
+                    UsersScheduledForMorning = morningSchedules,
+                    UsersScheduledForForenoon = forenoonSchedules
+                };
+                schedule.Days.Add(newDay);
+            }
+            await _dayRepository.SaveAsync();
+            await _scheduleRepository.SaveAsync();
+            return true;
         }
         #endregion
 
@@ -139,6 +193,7 @@ namespace WorkScheduleMaker.Services
             schedule.Days = await GetDays(year, month);
             schedule.Year = year;
             schedule.Month = month;
+            schedule.Id = Guid.NewGuid();
             var users = await _userManager.Users.Include(user => user.Requests.Where(request => request.Date.Year == year && request.Date.Month == month)).ToListAsync();
             for (var i = 0; i < schedule.Days.Count; i++)
             {
@@ -158,13 +213,13 @@ namespace WorkScheduleMaker.Services
 
         private async Task<List<Day>> GetDays(int year, int month) 
         {
-            var holidays = await _holidayService.GetAll();
+            var holidays = await _holidayService.Find(holiday => (holiday.Year == year && holiday.Month == month) || holiday.IsFix);
             List<Day> days = new();
             for (int index = 1; index <= DateTime.DaysInMonth(year, month); index++)
             {
                 var day = new Day { Date = DateTime.Parse($"{year}-{month}-{index}") };
                 day.IsWeekend = IsWeekend(day);
-                day.IsHoliday = IsHoliday(day, (holidays as List<Holiday>));
+                day.IsHoliday = IsHoliday(day, holidays);
                 days.Add(day);
             }
             return days;
@@ -226,11 +281,11 @@ namespace WorkScheduleMaker.Services
             }
         }
 
-        private bool IsHoliday(Day day, List<Holiday> holidays) 
+        private bool IsHoliday(Day day, IEnumerable<Holiday> holidays) 
         {
-            var month = day.Date.Month;
             var d = day.Date.Day;
-            return holidays.Where(holiday => holiday.Month == month && holiday.Day == d).Any();
+            var month = day.Date.Month;
+            return holidays.Where(holiday => holiday.Day == d && holiday.Month == month).Any();
         }
         #endregion
 

@@ -8,5 +8,8 @@
         public ICollection<Day> Days { get; set; }
         public ICollection<Summary> Summaries { get; set; }
         public int NumOfWorkdays { get; set; }
+        public bool IsSaved { get; set; }
+        
+        
     }
 }

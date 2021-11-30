@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WorkScheduleMaker.Data;
@@ -11,9 +12,10 @@ using WorkScheduleMaker.Data;
 namespace WorkScheduleMaker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211130090721_ExpandedHolidays")]
+    partial class ExpandedHolidays
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,15 +45,15 @@ namespace WorkScheduleMaker.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "70873a1e-3c18-480b-ae27-925fb1763ea0",
-                            ConcurrencyStamp = "989dda94-27f6-4478-8566-c0d1472760ca",
+                            Id = "f2da4b5a-a0c9-40e0-a37d-7ec9d75286ec",
+                            ConcurrencyStamp = "7f0d92e5-dd53-4a9d-8d2f-8e9dd7a11dbe",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "aa2ba727-d809-4813-8412-aaa0a1ec231c",
-                            ConcurrencyStamp = "f342cd32-900a-412a-adf0-d92dd5e578c0",
+                            Id = "3df7a835-afc8-4846-b546-2e5602a7508b",
+                            ConcurrencyStamp = "e924cfd3-d4d5-4edf-b7b7-f35edf235fd8",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -175,9 +177,6 @@ namespace WorkScheduleMaker.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsSaved")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Month")
                         .HasColumnType("integer");
 
@@ -254,7 +253,11 @@ namespace WorkScheduleMaker.Migrations
                     b.Property<int>("Holiday")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("MonthlyScheduleId")
+                    b.Property<string>("MonhtlyScheduleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MonthlyScheduleId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Morning")
@@ -395,9 +398,13 @@ namespace WorkScheduleMaker.Migrations
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Summary", b =>
                 {
-                    b.HasOne("WorkScheduleMaker.Entities.MonthlySchedule", null)
+                    b.HasOne("WorkScheduleMaker.Entities.MonthlySchedule", "MonthlySchedule")
                         .WithMany("Summaries")
-                        .HasForeignKey("MonthlyScheduleId");
+                        .HasForeignKey("MonthlyScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MonthlySchedule");
                 });
 
             modelBuilder.Entity("WorkScheduleMaker.Entities.Day", b =>

@@ -30,7 +30,7 @@ namespace WorkScheduleMaker.Controllers
             var user = await _userManager.FindByNameAsync(userForLoginDto.Username);
             if (user is null)
             {
-                return Unauthorized();
+                return Unauthorized("Invalid username or password!");
             }
             var signInResult = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
             if (signInResult.Succeeded)
@@ -41,7 +41,7 @@ namespace WorkScheduleMaker.Controllers
                     Token = token
                 });
             }
-            return Unauthorized();
+            return Unauthorized("Invalid username or password!");
         }
 
         private async Task<string> GenerateToken(User user)

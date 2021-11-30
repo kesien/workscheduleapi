@@ -9,6 +9,12 @@ namespace WorkScheduleMaker.Dtos
     public class UpdateScheduleDto
     {
         [Required]
-        public DayDto Day { get; set; }
+        public Guid Id { get; set; }
+        [Required]
+        public int Year { get; set; }
+        [Required]
+        public int Month { get; set; }
+        [Required]
+        public List<DayDto> Days { get; set; }
     }
 }

@@ -44,6 +44,7 @@ namespace WorkScheduleMaker.Helpers
                if (isDevelopment) 
                 {
                     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                    options.EnableSensitiveDataLogging();
                 }
                 else 
                 {

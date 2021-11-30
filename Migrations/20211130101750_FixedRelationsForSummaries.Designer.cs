@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WorkScheduleMaker.Data;
@@ -11,9 +12,10 @@ using WorkScheduleMaker.Data;
 namespace WorkScheduleMaker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211130101750_FixedRelationsForSummaries")]
+    partial class FixedRelationsForSummaries
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,15 +45,15 @@ namespace WorkScheduleMaker.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "70873a1e-3c18-480b-ae27-925fb1763ea0",
-                            ConcurrencyStamp = "989dda94-27f6-4478-8566-c0d1472760ca",
+                            Id = "4079f6cf-2ab2-46f8-9b62-7dbae7d1fd43",
+                            ConcurrencyStamp = "1a5f0f46-73d1-46e0-991b-2ce2a3485a2c",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "aa2ba727-d809-4813-8412-aaa0a1ec231c",
-                            ConcurrencyStamp = "f342cd32-900a-412a-adf0-d92dd5e578c0",
+                            Id = "9d5d3bb0-45ca-4479-bb9b-c43d07491d60",
+                            ConcurrencyStamp = "8767bc0e-4bd8-49d0-bcaa-9468fc2adcbf",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -174,9 +176,6 @@ namespace WorkScheduleMaker.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<bool>("IsSaved")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("Month")
                         .HasColumnType("integer");

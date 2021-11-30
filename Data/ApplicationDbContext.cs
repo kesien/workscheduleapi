@@ -22,6 +22,13 @@ namespace WorkScheduleMaker.Data
             builder.ApplyConfiguration(new RoleConfiguration());
             builder.Entity<IdentityUserRole<string>>().HasKey(p => new { p.UserId, p.RoleId });
             builder.Entity<Request>().Navigation(request => request.User).AutoInclude();
+            builder.Entity<MonthlySchedule>().Navigation(schedule => schedule.Days).AutoInclude();
+            builder.Entity<Day>().Navigation(day => day.UsersOnHoliday).AutoInclude();
+            builder.Entity<Day>().Navigation(day => day.UsersScheduledForMorning).AutoInclude();
+            builder.Entity<Day>().Navigation(day => day.UsersScheduledForForenoon).AutoInclude();
+            builder.Entity<HolidaySchedule>().Navigation(holiday => holiday.User).AutoInclude();
+            builder.Entity<MorningSchedule>().Navigation(morningschedule => morningschedule.User).AutoInclude();
+            builder.Entity<Forenoonschedule>().Navigation(Forenoonschedule => Forenoonschedule.User).AutoInclude();
         }
 
         public DbSet<User> Users { get; set; }

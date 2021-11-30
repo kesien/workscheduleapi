@@ -25,6 +25,7 @@ namespace WorkScheduleMaker.Controllers
         {
             var schedule = await _scheduleService.GetSchedule(year, month);
             var scheduleDto = _mapper.Map<ScheduleDto>(schedule);
+            scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();
             return Ok(scheduleDto);
         }
 
@@ -34,26 +35,35 @@ namespace WorkScheduleMaker.Controllers
             var newSchedule = await _scheduleService.CreateSchedule(createScheduleDto);
             if (newSchedule is null)
             {
-                return BadRequest();
+                return BadRequest("Couldn't create a new schedule");
             }
             var scheduleDto = _mapper.Map<ScheduleDto>(newSchedule);
+            scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();
             return Ok(scheduleDto);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSchedule(Guid id)
         {
-            await _scheduleService.DeleteSchedule(id);
+            var result = await _scheduleService.DeleteSchedule(id);
+            if (!result)
+            {
+                return BadRequest($"Couldn't delete schedule with Id: {id}");
+            }
             return NoContent();
         }
 
 
-        /*
+        
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSchedule(Guid id, UpdateScheduleDto updateScheduleDto)
+        public async Task<IActionResult> UpdateSchedule(Guid id, List<DayDto> daysToUpdate)
         {
-            await _scheduleService.UpdateSchedule(id, updateScheduleDto);
+            var result = await _scheduleService.UpdateSchedule(id, daysToUpdate);
+            if (!result)
+            {
+                BadRequest();
+            }
             return NoContent();
-        } */
+        }
     }
 }
