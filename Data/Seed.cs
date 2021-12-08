@@ -24,7 +24,7 @@ namespace WorkScheduleMaker.Data
                 foreach (var user in users)
                 {
                     userManager.CreateAsync(user, password).GetAwaiter().GetResult();
-                    if (user.UserName == "admin")
+                    if (user.Role == UserRole.ADMIN)
                     {
                         userManager.AddToRoleAsync(user, "Administrator").GetAwaiter().GetResult();
                     }
