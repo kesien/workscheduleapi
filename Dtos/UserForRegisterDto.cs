@@ -6,7 +6,7 @@ namespace WorkScheduleMaker.Dtos
     public class UserForRegisterDto
     {
         [Required]
-        [StringLength(20, MinimumLength = 4)]
+        [StringLength(40, MinimumLength = 4)]
         [EmailAddress]
         public string UserName { get; set; }
         [Required]
