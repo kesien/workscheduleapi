@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,8 +14,10 @@ namespace WorkScheduleMaker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Year = table.Column<int>(type: "integer", nullable: true),
                     Month = table.Column<int>(type: "integer", nullable: false),
-                    Day = table.Column<int>(type: "integer", nullable: false)
+                    Day = table.Column<int>(type: "integer", nullable: false),
+                    IsFix = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,7 +57,8 @@ namespace WorkScheduleMaker.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Year = table.Column<int>(type: "integer", nullable: false),
                     Month = table.Column<int>(type: "integer", nullable: false),
-                    NumOfWorkdays = table.Column<int>(type: "integer", nullable: false)
+                    NumOfWorkdays = table.Column<int>(type: "integer", nullable: false),
+                    IsSaved = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -95,10 +97,10 @@ namespace WorkScheduleMaker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     IsHoliday = table.Column<bool>(type: "boolean", nullable: false),
                     IsWeekend = table.Column<bool>(type: "boolean", nullable: false),
-                    MonthlyScheduleId = table.Column<Guid>(type: "uuid", nullable: true)
+                    MonthlyScheduleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,7 +109,8 @@ namespace WorkScheduleMaker.Migrations
                         name: "FK_Days_Schedules_MonthlyScheduleId",
                         column: x => x.MonthlyScheduleId,
                         principalTable: "Schedules",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -115,12 +118,12 @@ namespace WorkScheduleMaker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    MonthlyScheduleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MonhtlyScheduleId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Morning = table.Column<int>(type: "integer", nullable: false),
                     Forenoon = table.Column<int>(type: "integer", nullable: false),
-                    Holiday = table.Column<int>(type: "integer", nullable: false)
+                    Holiday = table.Column<int>(type: "integer", nullable: false),
+                    MonthlyScheduleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -138,9 +141,9 @@ namespace WorkScheduleMaker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -149,19 +152,17 @@ namespace WorkScheduleMaker.Migrations
                         name: "FK_Requests_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "ForenoonSchedules",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     IsRequest = table.Column<bool>(type: "boolean", nullable: false),
-                    DayId = table.Column<Guid>(type: "uuid", nullable: true)
+                    DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -170,7 +171,8 @@ namespace WorkScheduleMaker.Migrations
                         name: "FK_ForenoonSchedules_Days_DayId",
                         column: x => x.DayId,
                         principalTable: "Days",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ForenoonSchedules_Users_UserId",
                         column: x => x.UserId,
@@ -183,10 +185,9 @@ namespace WorkScheduleMaker.Migrations
                 name: "HolidaySchedules",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    DayId = table.Column<Guid>(type: "uuid", nullable: true)
+                    DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,7 +196,8 @@ namespace WorkScheduleMaker.Migrations
                         name: "FK_HolidaySchedules_Days_DayId",
                         column: x => x.DayId,
                         principalTable: "Days",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_HolidaySchedules_Users_UserId",
                         column: x => x.UserId,
@@ -208,11 +210,10 @@ namespace WorkScheduleMaker.Migrations
                 name: "MorningSchedules",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     IsRequest = table.Column<bool>(type: "boolean", nullable: false),
-                    DayId = table.Column<Guid>(type: "uuid", nullable: true)
+                    DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -221,7 +222,8 @@ namespace WorkScheduleMaker.Migrations
                         name: "FK_MorningSchedules_Days_DayId",
                         column: x => x.DayId,
                         principalTable: "Days",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MorningSchedules_Users_UserId",
                         column: x => x.UserId,
@@ -235,8 +237,8 @@ namespace WorkScheduleMaker.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ace65dc0-0537-4757-b642-19c3a24f5f77", "7074a932-32c2-4ef8-909d-52a43173b5db", "User", "USER" },
-                    { "d203c6b2-ff5d-40f7-8e5e-f68963fdabd2", "486c49a4-9418-4241-b5a9-8d211a273770", "Administrator", "ADMINISTRATOR" }
+                    { "2c47da92-98ea-46b7-aed4-bc7b0441e5e6", "15ebd0f0-d64a-4d71-a8ba-53c5f68fb1cd", "User", "USER" },
+                    { "8ced8ec3-e8c7-4e86-ae96-25cb8a456bcf", "16770340-c4d9-45f2-bf5e-e2af4a747120", "Administrator", "ADMINISTRATOR" }
                 });
 
             migrationBuilder.CreateIndex(

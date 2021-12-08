@@ -1,9 +1,10 @@
 ﻿namespace WorkScheduleMaker.Entities
 {
-    public class HolidaySchedule
+    public class HolidaySchedule : BaseEntity
     {
-        public int Id { get; set; }
-        public string UserId { get; set; }
         public User User { get; set; }
+        public Day Day { get; set; }
+        
+        
     }
 }

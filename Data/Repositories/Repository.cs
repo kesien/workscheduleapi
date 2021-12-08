@@ -1,58 +1,115 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using WorkScheduleMaker.Entities;
 
 namespace WorkScheduleMaker.Data.Repositories
 {
-    public class Repository<C, T> : IRepository<T> where T : class where C : DbContext
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected C _context;
+        protected ApplicationDbContext _context;
+        private readonly DbSet<TEntity> _dbSet;
 
-        public Repository(C context)
+        public Repository(ApplicationDbContext context)
         {
             _context = context;
+            _dbSet = context.Set<TEntity>();
         }
-        public void Add(T entity)
+        public virtual void Add(TEntity entity)
         {
-            _context.Set<T>().Add(entity);
+            _dbSet.Add(entity);
         }
 
-        public void Delete(T entity)
+        public void AddRange(IEnumerable<TEntity> entities)
         {
-            _context.Set<T>().Remove(entity);
+            _dbSet.AddRange(entities);
         }
 
-        public virtual async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate)
+        public virtual IEnumerable<TEntity> GetAsNoTracking()
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
+            return _dbSet.AsNoTracking<TEntity>();
         }
 
-        public virtual async Task<T> FindAsync(Expression<Func<T, bool>> predicate)
+        public virtual IEnumerable<TEntity> Get(
+            Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            string includeProperties = "", bool noTracking = false)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+            IQueryable<TEntity> query = _dbSet;
+
+            if (noTracking)
+            {
+                query.AsNoTracking<TEntity>();
+            }
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+
+            if (orderBy != null)
+            {
+                return orderBy(query).ToList();
+            }
+            else
+            {
+                return query.ToList();
+            }
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
+        public virtual TEntity GetByID(object id)
         {
-            return await _context.Set<T>().ToListAsync();
+            return _dbSet.Find(id);
         }
 
-        public virtual async Task<T> GetById(Guid id)
+        public virtual void Delete(object id)
         {
-            return await _context.Set<T>().FindAsync(id);
+            TEntity entityToDelete = _dbSet.Find(id);
+            Delete(entityToDelete);
         }
 
+        public virtual void Delete(TEntity entityToDelete)
+        {
+            if (_context.Entry(entityToDelete).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entityToDelete);
+            }
+            _dbSet.Remove(entityToDelete);
+        }
+
+        public virtual async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            query = query.Where(filter);
+            if (noTracking)
+            {
+                query.AsNoTracking();
+            }
+
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return query.FirstOrDefault();
+        }
+
+        public virtual void Update(TEntity entityToUpdate)
+        {
+            _dbSet.Attach(entityToUpdate);
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
+        }
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
-        }
-
-        public void Update(T entity)
-        {
-            if (entity == null)
-            {
-                return;
-            }
-            _context.Set<T>().Update(entity);
         }
     }
 }

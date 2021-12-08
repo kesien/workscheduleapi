@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 
 namespace WorkScheduleMaker.Entities
 {
-    public class Summary
+    public class Summary : BaseEntity
     {
-        public Guid Id { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public int Morning { get; set; }
         public int Forenoon { get; set; }
         public int Holiday { get; set; }
+        public MonthlySchedule MonthlySchedule { get; set; }
     }
 }

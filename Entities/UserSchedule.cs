@@ -2,7 +2,7 @@
 
 namespace WorkScheduleMaker.Entities
 {
-    public class UserSchedule
+    public class UserSchedule : BaseEntity
     {
         public User User { get; set; }
         public int NumOfMorningSchedules { get; set; }

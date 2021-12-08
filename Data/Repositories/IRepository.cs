@@ -1,16 +1,25 @@
 ﻿using System.Linq.Expressions;
+using WorkScheduleMaker.Entities;
 
 namespace WorkScheduleMaker.Data.Repositories
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity> where TEntity : class
     {
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<T> GetById(Guid id);
-        Task<T> FindAsync(Expression<Func<T, bool>> predicate);
-        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate);
-        void Add(T entity);
-        void Delete(T entity);
-        void Update(T entity);
+        void Add(TEntity entity);
+        void AddRange(IEnumerable<TEntity> entity);
+
+        IEnumerable<TEntity> GetAsNoTracking();
+        IEnumerable<TEntity> Get(
+            Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            string includeProperties = "", bool noTracking = false);
+
+        TEntity GetByID(object id);
+        void Delete(object id);
+        void Delete(TEntity entityToDelete);
+        Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false);
+        void Update(TEntity entityToUpdate);
+
         Task SaveAsync();
     }
 }

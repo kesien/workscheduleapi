@@ -18,38 +18,35 @@ namespace WorkScheduleMaker.Helpers
             CreateMap<UserForUpdateDto, User>();
             CreateMap<User, UsersWithRequestsDto>();
             CreateMap<MorningSchedule, UserToRequestDto>()
-                .ForMember(dest => dest.UserId, opt =>
+                .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
                 .ForMember(dest => dest.Name, opt => 
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
             CreateMap<Forenoonschedule, UserToRequestDto>()
-                .ForMember(dest => dest.UserId, opt =>
+                .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
                 .ForMember(dest => dest.Name, opt => 
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
             CreateMap<HolidaySchedule, UserToRequestDto>()
-                .ForMember(dest => dest.UserId, opt =>
+                .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
                 .ForMember(dest => dest.Name, opt => 
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
             CreateMap<Day, DayDto>().ReverseMap();
-            CreateMap<UserToRequestDto, User>()
-                .EqualityComparison((dto, user) => dto.UserId == user.Id);
+            CreateMap<UserToRequestDto, User>();
             CreateMap<User, UserToRequestDto>()
-                .EqualityComparison((user, dto) => user.Id == dto.UserId)
-                .ForMember(dest => dest.UserId, opt =>
-                    opt.MapFrom(src => src.Id));
+                .EqualityComparison((user, dto) => user.Id == dto.Id);
             CreateMap<UserToListDto, User>()
-                .EqualityComparison((dto, user) => dto.UserId == user.Id);
+                .EqualityComparison((dto, user) => dto.Id == user.Id);
             CreateMap<User, UserToListDto>()
-                .EqualityComparison((user, dto) => user.Id == dto.UserId)
-                .ForMember(dest => dest.UserId, opt =>
+                .EqualityComparison((user, dto) => user.Id == dto.Id)
+                .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.Id));
             CreateMap<MonthlySchedule, ScheduleDto>().ReverseMap();
             CreateMap<RequestDto, Request>().ReverseMap();
@@ -57,8 +54,9 @@ namespace WorkScheduleMaker.Helpers
                 .ForMember(dest => dest.Username, opt => 
                     opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.UserId, opt => 
-                    opt.MapFrom(dest => dest.UserId));
+                    opt.MapFrom(dest => dest.User.Id));
             CreateMap<Summary, SummaryDto>().ReverseMap();
+            CreateMap<Holiday, HolidayDto>().ReverseMap();
         }
     }
 }

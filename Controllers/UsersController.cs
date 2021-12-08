@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WorkScheduleMaker.Data;
 using WorkScheduleMaker.Dtos;
 using WorkScheduleMaker.Entities;
 using WorkScheduleMaker.Enums;
@@ -17,10 +18,12 @@ namespace WorkScheduleMaker.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
-        public UsersController(UserManager<User> userManager, IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+        public UsersController(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         [Authorize(Roles = "Administrator")]
@@ -29,7 +32,7 @@ namespace WorkScheduleMaker.Controllers
         {
             var users = _userManager.Users.ToList();
             var userList = _mapper.Map<List<UserToListDto>>(users);
-            return Ok(userList);
+            return Ok(userList.OrderBy(user => user.Name));
         }
 
         [Authorize(Roles = "Administrator,User")]
@@ -99,19 +102,33 @@ namespace WorkScheduleMaker.Controllers
                 return Forbid();
             }
 
-            if (userForUpdateDto.Password is not null)
+            if (!string.IsNullOrEmpty(userForUpdateDto.Password) && !string.IsNullOrWhiteSpace(userForUpdateDto.Password))
             {
                 var passwordHash = _userManager.PasswordHasher.HashPassword(userToChange, userForUpdateDto.Password);
                 userToChange.PasswordHash = passwordHash;
             }
             userToChange.UserName = userForUpdateDto.UserName ?? userToChange.UserName;
-            userToChange.Name = userForUpdateDto.Name ?? userToChange.Name;
+            if (userForUpdateDto.Name is not null && userForUpdateDto.Name != userToChange.Name)
+            {
+                userToChange.Name = userForUpdateDto.Name;
+                await UpdateSummaries(userToChange.Id, userForUpdateDto.Name);
+            }
             if (roles.Contains("Administrator"))
             {
                 userToChange.Role = userForUpdateDto.Role ?? userToChange.Role;
             }
             await _userManager.UpdateAsync(userToChange);
             return NoContent();
+        }
+
+        private async Task UpdateSummaries(string id, string name)
+        {
+            var summaries = _unitOfWork.SummaryRepository.Get(summary => summary.UserId == id);
+            foreach (var summary in summaries)
+            {
+                summary.Name = name;
+            }
+            _unitOfWork.Save();
         }
 
         [Authorize(Roles = "Administrator")]
@@ -124,6 +141,12 @@ namespace WorkScheduleMaker.Controllers
                 return BadRequest();
             }
             await _userManager.DeleteAsync(user);
+            var summaries = _unitOfWork.SummaryRepository.Get(summary => summary.UserId == id);
+            foreach (var summary in summaries)
+            {
+                _unitOfWork.SummaryRepository.Delete(summary);
+            }
+            _unitOfWork.Save();
             return NoContent();
         }
     }

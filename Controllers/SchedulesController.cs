@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WorkScheduleMaker.Data;
 using WorkScheduleMaker.Dtos;
+using WorkScheduleMaker.Entities;
 using WorkScheduleMaker.Services;
 
 namespace WorkScheduleMaker.Controllers
@@ -30,12 +31,18 @@ namespace WorkScheduleMaker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSchedule(ScheduleDto createScheduleDto)
+        public async Task<IActionResult> CreateSchedule(CreateScheduleDto createScheduleDto)
         {
-            var newSchedule = await _scheduleService.CreateSchedule(createScheduleDto);
-            if (newSchedule is null)
+            var schedule = await _scheduleService.CheckSchedule(createScheduleDto.Year, createScheduleDto.Month);
+            if (schedule)
             {
-                return BadRequest("Couldn't create a new schedule");
+                return BadRequest($"There is a schedule on date: {createScheduleDto.Year}-{createScheduleDto.Month}");
+            }
+            var newSchedule = await _scheduleService.CreateSchedule(createScheduleDto.Year, createScheduleDto.Month);
+
+            if (newSchedule is null) 
+            {
+                return BadRequest($"Couldn't create schedule on date: {createScheduleDto.Year}-{createScheduleDto.Month}");
             }
             var scheduleDto = _mapper.Map<ScheduleDto>(newSchedule);
             scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();
@@ -59,11 +66,12 @@ namespace WorkScheduleMaker.Controllers
         public async Task<IActionResult> UpdateSchedule(Guid id, List<DayDto> daysToUpdate)
         {
             var result = await _scheduleService.UpdateSchedule(id, daysToUpdate);
-            if (!result)
+            if (result is null)
             {
                 BadRequest();
             }
-            return NoContent();
+            var scheduleDto = _mapper.Map<ScheduleDto>(result);
+            return Ok(scheduleDto);
         }
     }
 }

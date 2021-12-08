@@ -2,9 +2,8 @@
 
 namespace WorkScheduleMaker.Entities
 {
-    public class Day
+    public class Day : BaseEntity
     {
-        public Guid Id { get; set; }
         [Required]
         public DateTime Date { get; set; }
         public bool IsHoliday { get; set; }
@@ -12,5 +11,6 @@ namespace WorkScheduleMaker.Entities
         public ICollection<MorningSchedule> UsersScheduledForMorning { get; set; }
         public ICollection<Forenoonschedule> UsersScheduledForForenoon { get; set; }
         public ICollection<HolidaySchedule> UsersOnHoliday { get; set; }
+        public MonthlySchedule MonthlySchedule { get; set; }
     }
 }

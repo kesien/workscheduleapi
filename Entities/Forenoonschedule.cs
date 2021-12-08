@@ -1,10 +1,11 @@
 ﻿namespace WorkScheduleMaker.Entities
 {
-    public class Forenoonschedule
+    public class Forenoonschedule : BaseEntity
     {
-        public int Id { get; set; }
-        public string UserId { get; set; }
         public User User { get; set; }
         public bool IsRequest { get; set; }
+        public Day Day { get; set; }
+        
+        
     }
 }

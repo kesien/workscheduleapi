@@ -1,5 +1,6 @@
 ﻿using beosztas_api.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WorkScheduleMaker.Entities;
 
@@ -21,14 +22,16 @@ namespace WorkScheduleMaker.Data
                 property.SetColumnType("timestamp without time zone");
             builder.ApplyConfiguration(new RoleConfiguration());
             builder.Entity<IdentityUserRole<string>>().HasKey(p => new { p.UserId, p.RoleId });
-            builder.Entity<Request>().Navigation(request => request.User).AutoInclude();
-            builder.Entity<MonthlySchedule>().Navigation(schedule => schedule.Days).AutoInclude();
-            builder.Entity<Day>().Navigation(day => day.UsersOnHoliday).AutoInclude();
+            builder.Entity<MonthlySchedule>().HasMany(e => e.Summaries).WithOne(e => e.MonthlySchedule).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<User>().HasMany(e => e.ForenoonSchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<User>().HasMany(e => e.MorningSchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<User>().HasMany(e => e.HolidaySchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);
+            /* builder.Entity<Day>().Navigation(day => day.UsersOnHoliday).AutoInclude();
             builder.Entity<Day>().Navigation(day => day.UsersScheduledForMorning).AutoInclude();
             builder.Entity<Day>().Navigation(day => day.UsersScheduledForForenoon).AutoInclude();
             builder.Entity<HolidaySchedule>().Navigation(holiday => holiday.User).AutoInclude();
             builder.Entity<MorningSchedule>().Navigation(morningschedule => morningschedule.User).AutoInclude();
-            builder.Entity<Forenoonschedule>().Navigation(Forenoonschedule => Forenoonschedule.User).AutoInclude();
+            builder.Entity<Forenoonschedule>().Navigation(Forenoonschedule => Forenoonschedule.User).AutoInclude(); */
         }
 
         public DbSet<User> Users { get; set; }

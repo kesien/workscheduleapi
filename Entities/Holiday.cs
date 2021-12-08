@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace WorkScheduleMaker.Entities
 {
-    public class Holiday
+    public class Holiday : BaseEntity
     {
-        public Guid Id { get; set; }
         public int? Year { get; set; }
         [Range(1, 12)]
         public int Month { get; set; }

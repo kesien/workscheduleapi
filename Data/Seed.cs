@@ -16,33 +16,9 @@ namespace WorkScheduleMaker.Data
                 {
                     new User
                     {
-                        UserName = "admin",
-                        Name = "admin",
+                        UserName = "anita@flyingteachers.com",
+                        Name = "Anita",
                         Role = UserRole.ADMIN
-                    },
-                    new User
-                    {
-                        UserName = "testuser",
-                        Name = "test",
-                        Role = UserRole.USER
-                    },
-                    new User
-                    {
-                        UserName = "testuser2",
-                        Name = "test",
-                        Role = UserRole.USER
-                    },
-                    new User
-                    {
-                        UserName = "testuser3",
-                        Name = "test",
-                        Role = UserRole.USER
-                    },
-                    new User
-                    {
-                        UserName = "testuser4",
-                        Name = "test",
-                        Role = UserRole.USER
                     }
                 };
                 foreach (var user in users)
