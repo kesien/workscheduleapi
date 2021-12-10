@@ -89,6 +89,7 @@ namespace WorkScheduleMaker.Controllers
         {
             var userToChange = await _userManager.FindByIdAsync(id);
             var identity = HttpContext.User.Identity as ClaimsIdentity;
+            var url = HttpContext.Request.
             var userId = "";
             if (identity != null)
             {

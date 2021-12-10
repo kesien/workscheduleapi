@@ -33,22 +33,6 @@ namespace WorkScheduleMaker.Controllers
             return Ok(requestsListDto);
         }
 
-        [HttpGet("{year}")]
-        public async Task<IActionResult> GetAllRequestsForYear(int year)
-        {
-            var requests = await _requestService.GetAllRequestsForYear(year);
-            var requestsListDto = _mapper.Map<List<RequestWithUserDto>>(requests);
-            return Ok(requestsListDto);
-        }
-
-        [HttpGet("{year}/{month}")]
-        public async Task<IActionResult> GetAllRequestsForMonth(int year, int month)
-        {
-            var requests = await _requestService.GetAllRequestsForMonth(year, month);
-            var requestsListDto = _mapper.Map<List<RequestWithUserDto>>(requests);
-            return Ok(requestsListDto);
-        }
-
         [HttpPost]
         public async Task<IActionResult> CreateRequest(RequestDto requestDto)
         {
@@ -64,9 +48,9 @@ namespace WorkScheduleMaker.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetAllRequestsForUser([FromQuery] string userid, [FromQuery] int year, [FromQuery] int month)
+        public async Task<IActionResult> GetAllRequestsForUserByDate([FromQuery] string userid, [FromQuery] int year, [FromQuery] int month)
         {
-            var requests = await _requestService.GetAllRequestsForUser(userid, year, month);
+            var requests = await _requestService.GetAllRequestsForUserByDate(userid, year, month);
             if (requests is null)
             {
                 return BadRequest();
@@ -74,6 +58,18 @@ namespace WorkScheduleMaker.Controllers
 
             var requestDto = _mapper.Map<List<RequestWithUserDto>>(requests);
 
+            return Ok(requestDto);
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllRequestsForUser(string userId) 
+        {
+            var requests = await _requestService.GetAllRequestsForUser(userId);
+            if (requests is null) 
+            {
+                return BadRequest();
+            }
+            var requestDto = _mapper.Map<List<RequestWithUserDto>>(requests);
             return Ok(requestDto);
         }
 

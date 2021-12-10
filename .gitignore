@@ -64,6 +64,7 @@ x64/
 *.log
 *.svclog
 *.scc
+SavedDocuments
 Scheduler.db*
 Scheduler.db-shm
 Scheduler.db-wal

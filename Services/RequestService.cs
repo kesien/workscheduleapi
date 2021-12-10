@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -57,17 +58,23 @@ namespace WorkScheduleMaker.Services
             return requests;
         }
 
-        public async Task<IEnumerable<Request>> GetAllRequestsForUser(string userId, int year, int month)
+        public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(string userId, int year, int month)
         {
             if (year == 0) {
                 year = DateTime.Now.Year;
+            
             }
-            if (month == 0) {
-                month = DateTime.Now.Month;
-            }
-            var requests = _unitOfWork.RequestRepository.Get(request => request.User.Id == userId && request.Date.Year == year && request.Date.Month == month, null, "User");
-            requests = requests.OrderBy(request => request.Date);
+            Expression<Func<Request, bool>> filter = request => request.User.Id == userId && request.Date.Year == year && request.Date.Month == month;
 
+            if (month == 0) {
+                filter = request => request.User.Id == userId && request.Date.Year == year;
+            }
+            var requests = _unitOfWork.RequestRepository.Get(filter, request => request.OrderBy(r =>r.Date), "User");
+            return requests;
+        }
+
+        public async Task<IEnumerable<Request>> GetAllRequestsForUser(string userId) {
+            var requests = _unitOfWork.RequestRepository.Get(request => request.User.Id == userId, request => request.OrderBy(r => r.Date));
             return requests;
         }
 

@@ -99,6 +99,7 @@ namespace WorkScheduleMaker.Services
             schedule.Summaries = GenerateSummary(userSchedules);
             _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
+            FileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             return schedule;
         }
 

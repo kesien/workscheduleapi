@@ -14,7 +14,8 @@ namespace WorkScheduleMaker.Services
         public Task<Request> GetRequestById(Guid id);
         public Task<IEnumerable<Request>> GetAllRequests();
         public Task<IEnumerable<Request>> GetAllRequestsForMonth(int year, int month);
-        public Task<IEnumerable<Request>> GetAllRequestsForUser(string userId, int year, int month);
+        public Task<IEnumerable<Request>> GetAllRequestsForUser(string userId);
+        public Task<IEnumerable<Request>> GetAllRequestsForUserByDate(string userId, int year, int month);
         public Task<IEnumerable<Request>> GetAllRequestsForYear(int year);
     }
 }
