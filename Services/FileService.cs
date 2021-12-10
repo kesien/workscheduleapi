@@ -160,7 +160,7 @@ namespace WorkScheduleMaker.Services
                     else
                     {
                         cell.SetBorder(TableCellBorderType.Right, thickBorder);
-                        if (i % ((max * 2) + 1) == 4)
+                        if (i % ((max * 2) + 1) == max + 1)
                         {
                             cell.SetBorder(TableCellBorderType.Bottom, thickBorder);
                         }
