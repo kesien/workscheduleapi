@@ -13,14 +13,16 @@ namespace WorkScheduleMaker.Services
         private readonly IMapper _mapper;
         private readonly Random _random;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
 
         #region Constructor
-        public ScheduleService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ScheduleService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
         {
             _mapper = mapper;
             _random = new Random();
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
         #endregion
 
@@ -97,9 +99,9 @@ namespace WorkScheduleMaker.Services
             }
             schedule.IsSaved = true;
             schedule.Summaries = GenerateSummary(userSchedules);
+            schedule.WordFile = _fileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
-            FileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             return schedule;
         }
 
@@ -136,10 +138,14 @@ namespace WorkScheduleMaker.Services
         /// <returns></returns>
         public async Task<bool> DeleteSchedule(Guid id)
         {
-            var schedule = _unitOfWork.ScheduleRepository.GetByID(id);
+            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == id, null, "WordFile").FirstOrDefault();
             if (schedule is null) 
             {
                 return false;
+            }
+            if (schedule.WordFile is not null) 
+            {
+                _fileService.DeleteFile(schedule.WordFile.FilePath, schedule.WordFile.FileName);
             }
             _unitOfWork.ScheduleRepository.Delete(schedule);
             _unitOfWork.Save();
@@ -154,7 +160,7 @@ namespace WorkScheduleMaker.Services
         /// <returns></returns>
         public async Task<MonthlySchedule> UpdateSchedule(Guid id, List<DayDto> dayDtos)
         {
-            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == id, null, "Summaries").FirstOrDefault();
+            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == id, null, "Summaries,WordFile").FirstOrDefault();
             if (schedule is null) 
             {
                 return null;
@@ -206,7 +212,23 @@ namespace WorkScheduleMaker.Services
             }
             schedule.Summaries = GenerateSummary(userSchedules);
             _unitOfWork.Save();
+            await UpdateWordFile(schedule.Year, schedule.Month, (int)Math.Ceiling(users.Count() / 2.0));
             return schedule;
+        }
+
+        private async Task UpdateWordFile(int year, int month, int max)
+        {
+            var schedule = await _unitOfWork.ScheduleRepository.GetByDate(year, month);
+            var newWordFile = _fileService.GenerateWordDoc(schedule, max);
+            if (schedule.WordFile is not null)
+            {
+                schedule.WordFile.FilePath = newWordFile.FilePath;
+                schedule.WordFile.FileName = newWordFile.FileName;
+            }
+            else 
+            {
+                schedule.WordFile = newWordFile;
+            }
         }
         #endregion
 

@@ -15,6 +15,7 @@ namespace WorkScheduleMaker.Data
         private IRepository<Request> _requestRepository;
         private IRepository<Holiday> _holidayRepository;
         private IRepository<Summary> _summaryRepository;
+        private IRepository<WordFile> _wordFileRepository;
         private ScheduleRepository _scheduleRepository;
         private IRepository<Day> _dayRepository;
         private UsersRepository _userRepository;
@@ -22,6 +23,18 @@ namespace WorkScheduleMaker.Data
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public IRepository<WordFile> WordFileRepository
+        {
+            get
+            {
+                if (_wordFileRepository == null)
+                {
+                    _wordFileRepository = new Repository<WordFile>(_context);
+                }
+                return _wordFileRepository;
+            }
         }
 
         public UsersRepository UserRepository

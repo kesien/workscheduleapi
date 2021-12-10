@@ -23,6 +23,7 @@ namespace WorkScheduleMaker.Data
             builder.ApplyConfiguration(new RoleConfiguration());
             builder.Entity<IdentityUserRole<string>>().HasKey(p => new { p.UserId, p.RoleId });
             builder.Entity<MonthlySchedule>().HasMany(e => e.Summaries).WithOne(e => e.MonthlySchedule).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<MonthlySchedule>().HasOne(e => e.WordFile).WithOne(e => e.MonthlySchedule).HasForeignKey<WordFile>(e => e.MonthlyScheduleId).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<User>().HasMany(e => e.ForenoonSchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<User>().HasMany(e => e.MorningSchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<User>().HasMany(e => e.HolidaySchedules).WithOne(e => e.User).OnDelete(DeleteBehavior.Cascade);

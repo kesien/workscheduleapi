@@ -27,6 +27,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 });
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IHolidayService, HolidayService>();

@@ -12,6 +12,7 @@ namespace WorkScheduleMaker.Data
         IRepository<Request> RequestRepository { get; }
         IRepository<Holiday> HolidayRepository { get; }
         IRepository<Summary> SummaryRepository { get; }
+        IRepository<WordFile> WordFileRepository { get; }
         ScheduleRepository ScheduleRepository { get; }
         IRepository<Day> DayRepository { get; }
         UsersRepository UserRepository { get; }

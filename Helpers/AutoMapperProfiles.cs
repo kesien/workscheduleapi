@@ -48,7 +48,10 @@ namespace WorkScheduleMaker.Helpers
                 .EqualityComparison((user, dto) => user.Id == dto.Id)
                 .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.Id));
-            CreateMap<MonthlySchedule, ScheduleDto>().ReverseMap();
+            CreateMap<MonthlySchedule, ScheduleDto>()
+                .ForMember(dest => dest.WordFile, opt =>
+                    opt.MapFrom(src => src.WordFile.Id))
+                .ReverseMap();
             CreateMap<RequestDto, Request>().ReverseMap();
             CreateMap<Request, RequestWithUserDto>()
                 .ForMember(dest => dest.Username, opt => 

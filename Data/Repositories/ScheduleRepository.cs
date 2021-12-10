@@ -30,6 +30,7 @@ namespace WorkScheduleMaker.Data.Repositories
                         .ThenInclude(day => day.UsersOnHoliday)
                         .ThenInclude(holiday => holiday.User)
                         .Include(schedule => schedule.Summaries)
+                        .Include(schedule => schedule.WordFile)
                         .FirstOrDefaultAsync();
         }
     }

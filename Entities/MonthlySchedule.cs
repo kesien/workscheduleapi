@@ -8,7 +8,6 @@
         public ICollection<Summary> Summaries { get; set; }
         public int NumOfWorkdays { get; set; }
         public bool IsSaved { get; set; }
-        
-        
+        public WordFile? WordFile { get; set; }
     }
 }
