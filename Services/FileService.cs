@@ -27,8 +27,13 @@ namespace WorkScheduleMaker.Services
                 {
                     Directory.CreateDirectory($"./SavedDocuments");
                 }
-                document.SaveAs(new FileStream($"./SavedDocuments/{fileName}", FileMode.Create, FileAccess.Write));
+                using (FileStream fs = new FileStream($"./SavedDocuments/{fileName}", FileMode.Create, FileAccess.Write))
+                {
+                    document.SaveAs(fs);
+                }
+                document.Dispose();
             }
+            GC.Collect();
             var dirInfo = new DirectoryInfo($"./SavedDocuments");
             var wordFile = new WordFile
             {
