@@ -93,8 +93,11 @@ namespace WorkScheduleMaker.Services
                             row.Cells[0].Paragraphs[0].Append("9:30-18:00").Bold().FontSize(10);
                         }
                     }
-                    table.MergeCellsInColumn(0, rowCount - (max * 2 - 1), rowCount - max);
-                    table.MergeCellsInColumn(0, rowCount - (max - 1), rowCount);
+                    if (max > 1) 
+                    {
+                        table.MergeCellsInColumn(0, rowCount - (max * 2 - 1), rowCount - max);
+                        table.MergeCellsInColumn(0, rowCount - (max - 1), rowCount);
+                    }
                 }
                 if (day.IsWeekend || day.IsHoliday)
                 {
@@ -140,10 +143,10 @@ namespace WorkScheduleMaker.Services
                     }
                 }
             }
-            setBorders(table, max);
+            SetBorders(table, max);
         }
 
-        private void setBorders(Table table, int max)
+        private void SetBorders(Table table, int max)
         {
             var thickBorder = new Border(BorderStyle.Tcbs_single, BorderSize.six, 0, Color.Black);
             for (int i = 0; i < table.Rows.Count; i++)
