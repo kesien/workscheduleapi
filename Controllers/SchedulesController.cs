@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WorkScheduleMaker.Data;
@@ -8,6 +10,7 @@ using WorkScheduleMaker.Services;
 
 namespace WorkScheduleMaker.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class SchedulesController : ControllerBase
@@ -30,6 +33,7 @@ namespace WorkScheduleMaker.Controllers
             return Ok(scheduleDto);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public async Task<IActionResult> CreateSchedule(CreateScheduleDto createScheduleDto)
         {
@@ -49,6 +53,7 @@ namespace WorkScheduleMaker.Controllers
             return Ok(scheduleDto);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSchedule(Guid id)
         {
@@ -61,7 +66,7 @@ namespace WorkScheduleMaker.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSchedule(Guid id, List<DayDto> daysToUpdate)
         {

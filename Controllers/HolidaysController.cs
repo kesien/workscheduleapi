@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkScheduleMaker.Dtos;
 using WorkScheduleMaker.Entities;
@@ -11,6 +13,7 @@ using WorkScheduleMaker.Services;
 
 namespace WorkScheduleMaker.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
     [ApiController]
     [Route("api/[controller]")]
     public class HolidaysController : ControllerBase
