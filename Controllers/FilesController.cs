@@ -17,9 +17,10 @@ namespace WorkScheduleMaker.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDropboxService _dropbox;
 
-        public FilesController(IUnitOfWork unitOfWork)
+        public FilesController(IUnitOfWork unitOfWork, IDropboxService dropbox)
         {
             _unitOfWork = unitOfWork;
+            _dropbox = dropbox;
         }
 
         [HttpGet("{id}")]
