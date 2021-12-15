@@ -10,11 +10,19 @@ namespace WorkScheduleMaker.Services
 
     public class FileService : IFileService
     {
-        public WordFile GenerateWordDoc(MonthlySchedule schedule, int max)
+        private readonly IDropboxService _dropbox;
+
+        public FileService(IDropboxService dropbox)
+        {
+            _dropbox = dropbox;
+        }
+
+        public async Task<WordFile> GenerateWordDoc(MonthlySchedule schedule, int max)
         {
             var baseDocument = LoadBaseDocument();
             var id = Guid.NewGuid();
             var fileName = $"{id}.docx";
+            var fullPath = Path.Combine("./SavedDocuments", fileName);
             using(DocX document = DocX.Load(baseDocument))
             {
                 var scheduleTable = document.Tables[0];
@@ -27,21 +35,38 @@ namespace WorkScheduleMaker.Services
                 {
                     Directory.CreateDirectory($"./SavedDocuments");
                 }
-                using (FileStream fs = new FileStream($"./SavedDocuments/{fileName}", FileMode.Create, FileAccess.Write))
+                using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
                 {
                     document.SaveAs(fs);
                 }
                 document.Dispose();
+            }
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(fullPath)))
+            {
+                var result = await _dropbox.UploadFile(fullPath, ms);
+                if (!result)
+                {
+                    return null;
+                }
             }
             GC.Collect();
             var dirInfo = new DirectoryInfo($"./SavedDocuments");
             var wordFile = new WordFile
             {
                 Id = id,
-                FilePath = dirInfo.FullName,
+                FilePath = $"SavedDocuments/{fileName}",
                 FileName = fileName
             };
+            DeleteAllFiles("./SavedDocuments");
             return wordFile;
+        }
+
+        private void DeleteAllFiles(string path)
+        {
+            foreach (var file in Directory.EnumerateFiles(path))
+            {
+                File.Delete(file);
+            }
         }
 
         private void GenerateSummaryTable(MonthlySchedule schedule, Table summaryTable)
@@ -267,23 +292,9 @@ namespace WorkScheduleMaker.Services
             paragraph.Alignment = Alignment.center;
         }
 
-        public void DeleteFile(string path, string fileName)
+        public async Task DeleteFile(string path)
         {
-            try
-            {
-                if (File.Exists(Path.Combine(path, fileName)))
-                {
-                    File.Delete(Path.Combine(path, fileName));
-                }
-                else
-                {
-                    Console.WriteLine("File not found!");
-                }
-            }
-            catch (IOException ioExp)    
-            {    
-                Console.WriteLine(ioExp.Message);    
-            }    
+            await _dropbox.DeleteFile(path);
         }
     }
 }

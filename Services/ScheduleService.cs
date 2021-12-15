@@ -99,7 +99,7 @@ namespace WorkScheduleMaker.Services
             }
             schedule.IsSaved = true;
             schedule.Summaries = GenerateSummary(userSchedules);
-            schedule.WordFile = _fileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
+            schedule.WordFile = await _fileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
             return schedule;
@@ -145,7 +145,7 @@ namespace WorkScheduleMaker.Services
             }
             if (schedule.WordFile is not null) 
             {
-                _fileService.DeleteFile(schedule.WordFile.FilePath, schedule.WordFile.FileName);
+                _fileService.DeleteFile(schedule.WordFile.FilePath);
             }
             _unitOfWork.ScheduleRepository.Delete(schedule);
             _unitOfWork.Save();
@@ -219,9 +219,10 @@ namespace WorkScheduleMaker.Services
         private async Task UpdateWordFile(int year, int month, int max)
         {
             var schedule = await _unitOfWork.ScheduleRepository.GetByDate(year, month);
-            var newWordFile = _fileService.GenerateWordDoc(schedule, max);
+            var newWordFile = await _fileService.GenerateWordDoc(schedule, max);
             if (schedule.WordFile is not null)
             {
+                await _fileService.DeleteFile(schedule.WordFile.FilePath);
                 schedule.WordFile.FilePath = newWordFile.FilePath;
                 schedule.WordFile.FileName = newWordFile.FileName;
             }

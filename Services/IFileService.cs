@@ -8,7 +8,7 @@ namespace WorkScheduleMaker.Services
 {
     public interface IFileService
     {
-        WordFile GenerateWordDoc(MonthlySchedule schedule, int max);
-        void DeleteFile(string path, string fileName);
+        Task<WordFile> GenerateWordDoc(MonthlySchedule schedule, int max);
+        Task DeleteFile(string path);
     }
 }

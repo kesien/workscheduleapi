@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkScheduleMaker.Data;
+using WorkScheduleMaker.Services;
 
 namespace WorkScheduleMaker.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
     [ApiController]
     [Route("api/[controller]")]
     public class FilesController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDropboxService _dropbox;
 
         public FilesController(IUnitOfWork unitOfWork)
         {
@@ -27,10 +28,10 @@ namespace WorkScheduleMaker.Controllers
             var file = _unitOfWork.WordFileRepository.GetByID(id);
             if (file is null) 
             {
-                return BadRequest($"File with id: {id} couldn't be found");
+                return NotFound($"File with id: {id} couldn't be found");
             }
             
-            var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(file.FilePath, file.FileName));
+            var bytes = await _dropbox.GetFile($"/{file.FilePath}");
             return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", file.FileName);
         }
     }
