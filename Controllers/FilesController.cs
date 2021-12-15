@@ -23,7 +23,7 @@ namespace WorkScheduleMaker.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> DownloadFile(Guid id)
+        public async Task<IActionResult> DownloadFile(Guid id)
         {
             var file = _unitOfWork.WordFileRepository.GetByID(id);
             if (file is null) 
@@ -32,7 +32,16 @@ namespace WorkScheduleMaker.Controllers
             }
             
             var bytes = await _dropbox.GetFile($"/{file.FilePath}");
-            return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", file.FileName);
+            if (bytes is null)
+            {
+                return NotFound();
+            }
+            var result = new FileContentResult(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            {
+                FileDownloadName = file.FileName
+            };
+
+            return result;
         }
     }
 }
