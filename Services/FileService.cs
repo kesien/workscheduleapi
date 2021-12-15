@@ -294,7 +294,7 @@ namespace WorkScheduleMaker.Services
 
         public async Task DeleteFile(string path)
         {
-            await _dropbox.DeleteFile(path);
+            await _dropbox.DeleteFile($"/{path}");
         }
     }
 }
