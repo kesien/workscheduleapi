@@ -7,6 +7,6 @@ namespace workscheduleapi.test
 {
     public class test
     {
-        
+        public string Testing { get; set; }
     }
 }
