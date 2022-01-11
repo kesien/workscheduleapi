@@ -230,7 +230,6 @@ namespace WorkScheduleMaker.Services
             {
                 schedule.WordFile = newWordFile;
             }
-            _unitOfWork.Save();
         }
         #endregion
 

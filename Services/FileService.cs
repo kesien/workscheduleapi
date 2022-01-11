@@ -90,14 +90,9 @@ namespace WorkScheduleMaker.Services
         {
 
             int rowCount = 0;
-            var days = schedule.Days.OrderBy(d => d.Date).ToList();
             for (int x = 0; x < schedule.Days.Count; x++)
             {
-                var day = days[x];
-                if (x == 0 && day.IsWeekend) 
-                {
-                    continue;
-                }
+                var day = schedule.Days.ToList()[x];
                 // Create rows for each week
                 if (x == 0 || day.Date.DayOfWeek == DayOfWeek.Monday)
                 {
