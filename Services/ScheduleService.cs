@@ -66,13 +66,16 @@ namespace WorkScheduleMaker.Services
                     {
                         morningSchedules = usersNotScheduledYet.Where(schedule => previousDay.UsersScheduledForForenoon.Where(user => user.User.Id == schedule.User.Id).Any() || previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any()).Select(schedule => new MorningSchedule { User = schedule.User }).ToList();
                     }
-                    if (morningSchedules.Count == 0) 
+                    if (morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) 
                     {
-                        while (day.UsersScheduledForMorning.Count < maxNumberOfUsersForMorning)
+                        while (morningSchedules.Count < maxNumberOfUsersForMorning)
                         {
                             var randomUserSchedule = usersNotScheduledYet[_random.Next(usersNotScheduledYet.Count)];
-                            day.UsersScheduledForMorning.Add(new MorningSchedule { User = randomUserSchedule.User });
-                            usersNotScheduledYet.Remove(randomUserSchedule);
+                            if (!morningSchedules.Select(s => s.User.Id).Any(id => id == randomUserSchedule.User.Id))
+                            {
+                                morningSchedules.Add(new MorningSchedule { User = randomUserSchedule.User });
+                                usersNotScheduledYet.Remove(randomUserSchedule);
+                            }
                         }
                     }
                     if (day.UsersScheduledForMorning.Count != 0) 
