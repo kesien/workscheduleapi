@@ -286,13 +286,17 @@ namespace WorkScheduleMaker.Services
             {
                 return;
             }
-            paragraph.Append(name).Bold().FontSize(10);
+            if (!isHoliday)
+            {
+                paragraph.Append(name).Bold().FontSize(10);
+            }
             if (isRequest)
             {
                 paragraph.Color(Color.FromArgb(1, 194, 12, 12));
             }
             if (isHoliday)
             {
+                paragraph.Append($"{name} (ferien)").Bold().FontSize(10);
                 paragraph.Color(Color.FromArgb(1, 41, 134, 202));
             }
             paragraph.Alignment = Alignment.center;
