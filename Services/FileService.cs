@@ -98,7 +98,6 @@ namespace WorkScheduleMaker.Services
                 {
                     continue;
                 }
-                // Create rows for each week
                 if (x == 0 || day.Date.DayOfWeek == DayOfWeek.Monday)
                 {
                     for (int i = 1; i <= max * 2; i++)
