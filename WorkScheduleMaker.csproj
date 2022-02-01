@@ -40,6 +40,8 @@
     <PackageReference Include="Npgsql" Version="6.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
+    <PackageReference Include="SendGrid" Version="9.25.2" />
+    <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
   </ItemGroup>
