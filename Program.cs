@@ -27,11 +27,20 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 });
+builder.Services.Configure<EmailClientSettings>(options =>
+{
+    options.ApiKey = builder.Configuration["EmailClientSettings:ApiKey"];
+    options.FromName = builder.Configuration["EmailClientSettings:FromName"];
+    options.FromEmail = builder.Configuration["EmailClientSettings:FromEmail"];
+    options.NewScheduleTemplateId = builder.Configuration["EmailClientSettings:NewScheduleTemplateId"];
+    options.ScheduleModifiedTemplateId = builder.Configuration["EmailClientSettings:ScheduleModifiedTemplateId"];
+});
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IDropboxService, DropboxService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IHolidayService, HolidayService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
