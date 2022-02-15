@@ -1,0 +1,56 @@
+version: "3.7"
+
+services:
+  workschedule-api:
+    image: workscheduleapi_workschedule-api
+    container_name: workschedule-api
+    build:
+      context: .
+      args:
+        ASPNETCORE_ENVIRONMENT: Production
+        DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@workschedule-postgres:5432/${DATABASE_DB}
+    restart: on-failure
+    depends_on:
+      workschedule-postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DATABASE_URL=postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@workschedule-postgres:5432/${DATABASE_DB}
+      - DROPBOX_TOKEN=${DROPBOX_TOKEN}
+      - JWTSETTINGS:SECRET=${JWTSECRET}
+      - EmailClientSettings:ApiKey=${EMAILAPIKEY}
+    ports:
+      - "8080:80"
+    networks:
+      - workscheduleapi
+  workschedule-postgres:
+    container_name: workschedule-postgres
+    image: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "flying", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    ports:
+      - "5432:5432"
+    networks:
+      - workscheduleapi
+  workschedule-pgadmin:
+    image: dpage/pgadmin4
+    restart: on-failure
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - workscheduleapi
+  
+networks:
+  workscheduleapi:
+    name: workscheduleapi
