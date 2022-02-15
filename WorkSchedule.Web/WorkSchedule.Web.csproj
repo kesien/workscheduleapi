@@ -31,8 +31,8 @@
     <ProjectReference Include="..\WorkSchedule.Api\WorkSchedule.Api.csproj" />
     <ProjectReference Include="..\WorkSchedule.Application\WorkSchedule.Application.csproj" />
   </ItemGroup>
-  <Target Name="PrePublishTarget" AfterTargets="Publish">
+  <!--<Target Name="PrePublishTarget" AfterTargets="Publish">
     <Exec Command="dotnet ef database update" />
-  </Target>
+  </Target>-->
 
 </Project>

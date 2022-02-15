@@ -90,7 +90,7 @@ namespace WorkSchedule.Application.Extensions
             var databaseUri = new Uri(connectionUrl);
             string db = databaseUri.LocalPath.TrimStart('/');
             string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
-            var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;Include Error Detail=True;";
+            var connectionString = $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;Trust Server Certificate=True;Include Error Detail=True;";
             return connectionString;
         }
     }

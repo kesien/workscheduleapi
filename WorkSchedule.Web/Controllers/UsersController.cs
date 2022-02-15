@@ -22,9 +22,9 @@ namespace Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpGet]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _mediator.Send(new GetAllUsersQuery());
+            var users = await _mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }
 
@@ -37,11 +37,6 @@ namespace Controllers
             if (identity != null)
             {
                 userId = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            }
-
-            if (string.IsNullOrEmpty(userId)) 
-            {
-                return Forbid();
             }
             var user = await _mediator.Send(new GetUserByIdQuery() { Id = id, RequesterId = userId });
             return Ok(user);

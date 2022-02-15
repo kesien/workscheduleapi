@@ -12,11 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\holidays.json">
+    <EmbeddedResource Include="Resources\holidays.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

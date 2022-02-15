@@ -59,11 +59,11 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
 } else {
     app.UseExceptionHandler(builder => {
@@ -83,25 +83,18 @@ app.UseCors(options => {
 });
 app.UseHttpsRedirection();
 
-app.UseRouting();
 app.UseAuthentication();
+app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        await context.Database.MigrateAsync();
-        var userManager = services.GetRequiredService<UserManager<User>>();
-        UserSeed.SeedUsers(userManager);
-        HolidaySeed.SeedHolidays(context);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.StackTrace);
-    }
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    UserSeed.SeedUsers(userManager);
+    HolidaySeed.SeedHolidays(context);
 }
 app.Run();

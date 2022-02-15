@@ -13,9 +13,10 @@ namespace WorkSchedule.Application.QueryHandlers.Users
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
 
-        public GetUserByIdQueryHandler(UserManager<User> userManager)
+        public GetUserByIdQueryHandler(UserManager<User> userManager, IMapper mapper)
         {
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         public async Task<UserToListDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)

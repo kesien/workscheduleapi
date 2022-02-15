@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Reflection;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
 
@@ -10,7 +11,14 @@ namespace WorkSchedule.Application.Data.Seeds
         {
             if (!context.Holidays.Any())
             {
-                var holidaysData = File.ReadAllText("../WorkSchedule.Application/Resources/holidays.json");
+                var resourceName = "WorkSchedule.Application.Resources.holidays.json";
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                Stream data = assembly.GetManifestResourceStream(resourceName);
+                var holidaysData = "";
+                using (StreamReader reader = new StreamReader(data))
+                {
+                    holidaysData = reader.ReadToEnd();
+                }
                 var holidays = JsonConvert.DeserializeObject<List<Holiday>>(holidaysData);
                 if (holidays != null)
                 {

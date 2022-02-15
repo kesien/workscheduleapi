@@ -20,7 +20,7 @@ namespace Controllers
         public AuthController(SignInManager<User> signInManager, IConfiguration config, UserManager<User> userManager)
         {
             _signInManager = signInManager;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("JWTSettings:Secret").Value));
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("JWTSETTINGS:SECRET").Value));
             _userManager = userManager;
         }
 
