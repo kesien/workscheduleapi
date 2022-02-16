@@ -11,7 +11,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - dotnet-packages-v1-{{ checksum "WorkScheduleMaker.csproj" }}
+            - dotnet-packages-v1-{{ checksum "WorkSchedule.Api.csproj" }}
+            - dotnet-packages-v1-{{ checksum "WorkSchedule.Application.csproj" }}
+            - dotnet-packages-v1-{{ checksum "WorkSchedule.Web.csproj" }}
+            - dotnet-packages-v1-{{ checksum "WorkSchedule.UnitTests.csproj" }}
       - run:
           name: 'Install project dependencies'
           command: dotnet.exe restore

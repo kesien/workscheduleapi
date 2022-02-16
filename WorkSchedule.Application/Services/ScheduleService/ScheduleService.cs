@@ -135,7 +135,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public async Task<bool> CheckSchedule(int year, int month)
         {
             var schedule = await _unitOfWork.ScheduleRepository.FindAsync(schedule => schedule.Year == year && schedule.Month == month);
-            if (schedule is not null) 
+            if (schedule.Any()) 
             {
                 return true;
             }

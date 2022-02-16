@@ -13,7 +13,7 @@ namespace WorkSchedule.Application.Data.Repositories
         TEntity? GetByID(object id);
         void Delete(object id);
         void Delete(TEntity entityToDelete);
-        Task<TEntity>? FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false);
+        Task<List<TEntity>>? FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false);
         void Update(TEntity entityToUpdate);
     }
 }

@@ -55,7 +55,7 @@ namespace WorkSchedule.Application.Services.HolidayService
         public async Task<Holiday> GetByDate(DateTime date)
         {
             var holiday = await _unitOfWork.HolidayRepository.FindAsync(holiday => holiday.Year == date.Year && holiday.Month == date.Month && holiday.Day == date.Day);
-            return holiday;
+            return holiday.First();
         }
 
         public async Task<IEnumerable<Holiday>> Find(Expression<Func<Holiday, bool>> predicate)

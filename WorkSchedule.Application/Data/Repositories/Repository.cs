@@ -86,7 +86,7 @@ namespace WorkSchedule.Application.Data.Repositories
             _dbSet.Remove(entityToDelete);
         }
 
-        public virtual async Task<TEntity>? FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false)
+        public virtual async Task<List<TEntity>>? FindAsync(Expression<Func<TEntity, bool>> filter, string includeProperties = "", bool noTracking = false)
         {
             IQueryable<TEntity> query = _dbSet;
 
@@ -102,7 +102,7 @@ namespace WorkSchedule.Application.Data.Repositories
                 query = query.Include(includeProperty);
             }
 
-            return query.FirstOrDefault();
+            return query.ToList();
         }
 
         public virtual void Update(TEntity entityToUpdate)
