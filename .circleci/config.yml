@@ -20,8 +20,8 @@ jobs:
             - C:\Users\circleci\.nuget\packages
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
-        name: "Run Application Tests"
-        command: dotnet.exe test -v n
+          name: "Run Application Tests"
+          command: dotnet.exe test -v n
   build:
     description: Build application with Release configuration
     executor:
