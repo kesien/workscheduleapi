@@ -46,7 +46,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - feature/*
+                - /feature.*/
   heroku_deploy:
     jobs:
       - heroku/deploy-via-git:
