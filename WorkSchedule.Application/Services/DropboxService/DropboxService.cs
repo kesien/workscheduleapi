@@ -10,7 +10,7 @@ namespace WorkSchedule.Application.Services.DropboxService
 
         public DropboxService(IConfiguration config)
         {
-            _accessToken = config.GetSection("DropboxToken").Value;
+            _accessToken = config.GetSection("DROPBOX_TOKEN").Value;
         }
 
         public async Task<bool> DeleteFile(string file)

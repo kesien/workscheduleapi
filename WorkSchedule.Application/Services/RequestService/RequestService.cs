@@ -10,7 +10,7 @@ namespace WorkSchedule.Application.Services.RequestService
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public RequestService(IMapper mapper, IUnitOfWork unitOfWork)
+        public RequestService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -76,7 +76,7 @@ namespace WorkSchedule.Application.Services.RequestService
 
         public async Task<IEnumerable<Request>> GetAllRequestsForYear(int year)
         {
-            var requests = _unitOfWork.RequestRepository.Get(request => request.Date.Year == year, null, "user");
+            var requests = _unitOfWork.RequestRepository.Get(request => request.Date.Year == year, null, "User");
             return requests;
         }
 
@@ -109,7 +109,8 @@ namespace WorkSchedule.Application.Services.RequestService
         {
             var month = date.Month;
             var day = date.Day;
-            var isHoliday = _unitOfWork.HolidayRepository.Get(holiday => holiday.Month == month && holiday.Day == day).Any();
+            var year = date.Year;
+            var isHoliday = _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && holiday.Month == month && holiday.Day == day).Any();
             return isHoliday;
         }
     }

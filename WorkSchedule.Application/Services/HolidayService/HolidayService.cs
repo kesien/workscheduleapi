@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
-using AutoMapper;
 using WorkSchedule.Application.Data;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.HolidayService
@@ -9,11 +7,9 @@ namespace WorkSchedule.Application.Services.HolidayService
     public class HolidayService : IHolidayService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public HolidayService(IMapper mapper, IUnitOfWork unitOfWork)
+        public HolidayService(IUnitOfWork unitOfWork)
         {
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 

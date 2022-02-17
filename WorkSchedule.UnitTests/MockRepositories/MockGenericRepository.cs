@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.EntityFrameworkCore;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,8 @@ namespace WorkSchedule.UnitTests.MockRepositories
             mockRepo.Setup(r => r.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), 
                     It.IsAny<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(), 
                     It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(Entities);
+                .Returns((Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
+            string include, bool noTracking) => Get(filter, orderBy, include, noTracking));
             mockRepo.Setup(r => r.Add(It.IsAny<TEntity>())).Callback<TEntity>(r => Entities.Append(r)).Verifiable();
             mockRepo.Setup(r => r.GetByID(It.IsAny<Guid>())).Returns((Guid id) => Entities.FirstOrDefault(r => r.Id == id));
             mockRepo.Setup(r => r.Delete(It.IsAny<TEntity>())).Callback<TEntity>(r => Entities.Remove(r)).Verifiable();
@@ -36,6 +38,37 @@ namespace WorkSchedule.UnitTests.MockRepositories
             IQueryable<TEntity> query = Entities.AsQueryable();
             query = query.Where(exp);
             return query.ToList();
+        }
+
+        private List<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy, 
+            string include = "", bool noTracking = false)
+        {
+            IQueryable<TEntity> query = Entities.AsQueryable();
+
+            if (noTracking)
+            {
+                query.AsNoTracking();
+            }
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+
+            foreach (var includeProperty in include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+
+            if (orderBy != null)
+            {
+                return orderBy(query).ToList();
+            }
+            else
+            {
+                return query.ToList();
+            }
         }
     }
 }

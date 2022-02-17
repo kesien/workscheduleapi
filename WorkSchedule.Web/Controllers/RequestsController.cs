@@ -45,7 +45,7 @@ namespace Controllers
         }
 
         [HttpGet("{userId}/{year}/{month}")]
-        public async Task<IActionResult> GetAllRequestsForUserByDate(string userId, int year, int month)
+        public async Task<IActionResult> GetAllRequestsForUserByDate(Guid userId, int year, int month)
         {
             var requests = await _mediator.Send(
                 new GetAllRequestsForUserByDateQuery()

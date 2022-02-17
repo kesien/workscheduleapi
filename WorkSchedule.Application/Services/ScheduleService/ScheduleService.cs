@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using WorkSchedule.Api.Constants;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Api.Dtos;
@@ -42,21 +41,21 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
             var helperCounter = 1;
             var previousDay = days[0];
-            for (var index = 0; index < days.Count; index++)
+            for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
             {
-                var day = days[index];
-                var tempIndex = index;
+                var day = days[dayIndex];
+                var tempIndex = dayIndex;
 
                 if (day.IsHoliday || day.IsWeekend)
                 {
                     continue;
                 }
                 schedule.NumOfWorkdays++;
-                var maxNumberOfUsersForMorning = index % 2 == 0 ? users.Count() / 2 : (int)Math.Ceiling(users.Count() / 2.0);
-                if (index % 2 == 0) 
+                var maxNumberOfUsersForMorning = dayIndex % 2 == 0 ? users.Count() / 2 : (int)Math.Ceiling(users.Count() / 2.0);
+                if (dayIndex % 2 == 0) 
                 {
-                    GenerateMorningSchedules(helperCounter, maxNumberOfUsersForMorning, day, userSchedules);
-                    GenerateForenoonSchedules(day, userSchedules);
+                    day = GenerateMorningSchedules(helperCounter, maxNumberOfUsersForMorning, day, userSchedules);
+                    day = GenerateForenoonSchedules(day, userSchedules);
                 }
                 else 
                 {
@@ -64,9 +63,14 @@ namespace WorkSchedule.Application.Services.ScheduleService
                     List<MorningSchedule> morningSchedules = new();
                     if (!previousDay.IsHoliday && !previousDay.IsWeekend) 
                     {
-                        morningSchedules = usersNotScheduledYet.Where(schedule => previousDay.UsersScheduledForForenoon.Where(user => user.User.Id == schedule.User.Id).Any() || previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any()).Select(schedule => new MorningSchedule { User = schedule.User }).ToList();
+                        morningSchedules = usersNotScheduledYet.Where(schedule => 
+                            previousDay.UsersScheduledForForenoon.Where(user => 
+                                user.User.Id == schedule.User.Id).Any() || 
+                                previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any())
+                            .Select(schedule => new MorningSchedule { User = schedule.User })
+                            .ToList();
                     }
-                    if (morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) 
+                    if ((morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) && usersNotScheduledYet.Count != 0) 
                     {
                         while (morningSchedules.Count < maxNumberOfUsersForMorning)
                         {
@@ -94,9 +98,9 @@ namespace WorkSchedule.Application.Services.ScheduleService
                             day.UsersScheduledForMorning.Add(morningschedule);
                         }
                     }
-                    GenerateForenoonSchedules(day, userSchedules);
+                    day = GenerateForenoonSchedules(day, userSchedules);
                 }
-                UpdateUserSchedules(day, userSchedules);
+                userSchedules = UpdateUserSchedules(day, userSchedules);
                 previousDay = day;
                 helperCounter++;
             }
@@ -106,8 +110,9 @@ namespace WorkSchedule.Application.Services.ScheduleService
             {
                 schedule.WordFile = await _fileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             }
-            catch (IndexOutOfRangeException ex)
+            catch (Exception ex)
             {
+                Console.Error.WriteLine(ex.Message);
                 schedule.WordFile = null;
                 throw new ApplicationException("Couldn't create Word file!");
             }
@@ -176,7 +181,8 @@ namespace WorkSchedule.Application.Services.ScheduleService
             {
                 return null;
             }
-            var days = _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
+            var days = _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, 
+                null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
             var users = _unitOfWork.UserRepository.Get();
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             foreach (var dayDto in dayDtos)
@@ -262,9 +268,15 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 {
                     continue;
                 }
-                day.UsersScheduledForMorning = requests.Where(request => request.Date == date && request.Type == RequestType.MORNING).Select(request => new MorningSchedule { User = request.User, IsRequest = true }).ToList();
-                day.UsersScheduledForForenoon = requests.Where(request => request.Date == date && request.Type == RequestType.FORENOON).Select(request => new Forenoonschedule { User = request.User, IsRequest = true }).ToList();
-                day.UsersOnHoliday = requests.Where(request => request.Date == date && request.Type == RequestType.HOLIDAY).Select(request => new HolidaySchedule { User = request.User }).ToList();
+                day.UsersScheduledForMorning = requests.Where(request => request.Date == date && request.Type == RequestType.MORNING)
+                    .Select(request => new MorningSchedule { User = request.User, IsRequest = true })
+                    .ToList();
+                day.UsersScheduledForForenoon = requests.Where(request => request.Date == date && request.Type == RequestType.FORENOON)
+                    .Select(request => new Forenoonschedule { User = request.User, IsRequest = true })
+                    .ToList();
+                day.UsersOnHoliday = requests.Where(request => request.Date == date && request.Type == RequestType.HOLIDAY)
+                    .Select(request => new HolidaySchedule { User = request.User })
+                    .ToList();
             }
 
            return schedule;
@@ -272,7 +284,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
         private async Task<List<Day>> GetDays(int year, int month) 
         {
-            var holidays = _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year && holiday.Month == month) || holiday.IsFix);
+            var holidays = _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && holiday.Month == month);
             List<Day> days = new();
             for (int index = 1; index <= DateTime.DaysInMonth(year, month); index++)
             {
@@ -296,28 +308,32 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
         private List<Summary> GenerateSummary(List<UserSchedule> userSchedules)
         {
-            List<Summary> summaries = userSchedules.Select(userSchedule => new Summary 
-                                        { 
-                                            UserId = userSchedule.User.Id,
-                                            Name = userSchedule.User.Name,
-                                            Morning = userSchedule.NumOfMorningSchedules - userSchedule.NumOfHolidays,
-                                            Forenoon = userSchedule.NumOfForenoonSchedules,
-                                            Holiday = userSchedule.NumOfHolidays
-                                        }).ToList();
+            List<Summary> summaries = userSchedules.Select(userSchedule => 
+                new Summary 
+                { 
+                    UserId = userSchedule.User.Id,
+                    Name = userSchedule.User.Name,
+                    Morning = userSchedule.NumOfMorningSchedules - userSchedule.NumOfHolidays,
+                    Forenoon = userSchedule.NumOfForenoonSchedules,
+                    Holiday = userSchedule.NumOfHolidays
+                }).ToList();
             return summaries;
         }
 
-        private void GenerateForenoonSchedules(Day day, List<UserSchedule> userSchedules)
+        private Day GenerateForenoonSchedules(Day day, List<UserSchedule> userSchedules)
         {
             var usersNotScheduledYet = GetUsersNotScheduledYet(day, userSchedules);
-            List<Forenoonschedule> forenoonschedules = usersNotScheduledYet.Select(schedules => new Forenoonschedule { User = schedules.User }).ToList();
+            List<Forenoonschedule> forenoonschedules = usersNotScheduledYet
+                .Select(schedules => new Forenoonschedule { User = schedules.User })
+                .ToList();
             foreach (var schedule in forenoonschedules)
             {
                 day.UsersScheduledForForenoon.Add(schedule);
             }
+            return day;
         }
 
-        private void GenerateMorningSchedules(int helperCounter, int maxUsersForMorning, Day day, List<UserSchedule> userSchedules)
+        private Day GenerateMorningSchedules(int helperCounter, int maxUsersForMorning, Day day, List<UserSchedule> userSchedules)
         {
             var usersNotScheduledYet = GetUsersNotScheduledYet(day, userSchedules);
             var possibleUsers = usersNotScheduledYet.Where(userSchedule => userSchedule.NumOfMorningSchedules < helperCounter).ToList();
@@ -327,9 +343,10 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 day.UsersScheduledForMorning.Add(new MorningSchedule { User = randomUserSchedule.User });
                 possibleUsers.Remove(randomUserSchedule);
             }
+            return day;
         }
 
-        private void UpdateUserSchedules(Day day, List<UserSchedule> userSchedules)
+        private List<UserSchedule> UpdateUserSchedules(Day day, List<UserSchedule> userSchedules)
         {
             foreach (var userSchedule in userSchedules)
             {
@@ -339,6 +356,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 userSchedule.NumOfForenoonSchedules += day.UsersScheduledForForenoon.Where(user => user.User.Id == userSchedule.User.Id).ToList().Count;
                 userSchedule.NumOfHolidays += holidayCount;
             }
+            return userSchedules;
         }
 
         private bool IsHoliday(Day day, IEnumerable<Holiday> holidays) 

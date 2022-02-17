@@ -43,7 +43,7 @@ namespace Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSchedule(string id)
+        public async Task<IActionResult> DeleteSchedule(Guid id)
         {
             await _mediator.Send(new DeleteScheduleCommand() { Id = id });
             return NoContent();
