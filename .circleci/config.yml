@@ -5,8 +5,12 @@ orbs:
 jobs:
   test:
     description: Setup and run application tests
-    executor:
-      name: windows/default
+    working_directory: /temp
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk
+    environment:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
       - checkout
       - restore_cache:
@@ -14,23 +18,24 @@ jobs:
             - dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: 'Install project dependencies'
-          command: dotnet.exe restore
+          command: dotnet restore
       - save_cache:
           paths:
             - C:\Users\circleci\.nuget\packages
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: "Run Application Tests"
-          command: dotnet.exe test -v n
+          command: dotnet test -v n
   build:
     description: Build application with Release configuration
-    executor:
-      name: windows/default
+    working_directory: /temp
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk
     steps:
       - checkout
       - run:
           name: 'Build Application according to some given configuration'
-          command: dotnet.exe build --configuration Release
+          command: dotnet build --configuration Release
 workflows:
   test_and_build:
     jobs:
