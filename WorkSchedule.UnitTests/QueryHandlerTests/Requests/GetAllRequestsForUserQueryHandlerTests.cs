@@ -56,6 +56,16 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Requests
             requests[1].Type.Should().Be(Api.Constants.RequestType.MORNING);
         }
 
+        [Fact]
+        public async Task InvalidUser_Should_ReturnAnEmptyList()
+        {
+            var query = new GetAllRequestsForUserQuery() { UserId = "b0844c05-e80b-442e-1111-25470ee6c970" };
+            var handler = new GetAllRequestsForUserQueryHandler(_requestService, _mapper);
+            var requests = await handler.Handle(query, CancellationToken.None);
+            requests.Should().NotBeNull();
+            requests.Should().BeEmpty();
+        }
+
         private List<Request> GenerateEntities()
         {
             var user = new User { Id = "b0844c05-e80b-442e-0000-25470ee6c970", Name = "test", UserName = "test" };
