@@ -4,18 +4,11 @@ using WorkSchedule.Application.Persistency;
 
 namespace WorkSchedule.UnitTests
 {
-    public class MockUnitOfWork
+    public static class MockUnitOfWork
     {
-        public MockUnitOfWork()
+        public static Mock<IUnitOfWork> GetUnitOfWorkMock()
         {
-
-        }
-
-        public Mock<IUnitOfWork> GetUnitOfWorkMock()
-        {
-            var dbContextMock = new Mock<ApplicationDbContext>();
-            var mock = new Mock<IUnitOfWork>();
-            return mock;
+            return new Mock<IUnitOfWork>();
         }
     }
 }

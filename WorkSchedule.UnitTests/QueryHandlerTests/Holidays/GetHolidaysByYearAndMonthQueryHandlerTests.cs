@@ -24,10 +24,9 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Holidays
         {
             List<Holiday> entities = GenerateEntities();
             holidayRepo = new MockGenericRepository<Holiday>(entities);
-            var uowMock = new MockUnitOfWork();
-            var uow = uowMock.GetUnitOfWorkMock();
-            uow.Setup(r => r.HolidayRepository).Returns(holidayRepo.GetGenericRepository().Object);
-            _uow = uow.Object;
+            var uowMock = MockUnitOfWork.GetUnitOfWorkMock();
+            uowMock.Setup(r => r.HolidayRepository).Returns(holidayRepo.GetGenericRepository().Object);
+            _uow = uowMock.Object;
             _mapper = MappingHelper.GetMappings().CreateMapper();
         }
 

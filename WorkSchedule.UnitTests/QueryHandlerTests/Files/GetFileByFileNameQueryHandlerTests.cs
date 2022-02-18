@@ -23,10 +23,9 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Files
         {
             List<WordFile> entities = GenerateEntities();
             var fileRepo = new MockGenericRepository<WordFile>(entities);
-            var uowMock = new MockUnitOfWork();
-            var uow = uowMock.GetUnitOfWorkMock();
-            uow.Setup(r => r.WordFileRepository).Returns(fileRepo.GetGenericRepository().Object);
-            _uow = uow.Object;
+            var uowMock = MockUnitOfWork.GetUnitOfWorkMock();
+            uowMock.Setup(r => r.WordFileRepository).Returns(fileRepo.GetGenericRepository().Object);
+            _uow = uowMock.Object;
         }
 
         [Fact(DisplayName = "Valid Id Should Return a WordFile")]
