@@ -14,14 +14,14 @@ namespace WorkSchedule.Application.Data.Repositories
             _context = context;
             _dbSet = context.Set<TEntity>();
         }
-        public virtual void Add(TEntity entity)
+        public async virtual Task Add(TEntity entity)
         {
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
-        public void AddRange(IEnumerable<TEntity> entities)
+        public async Task AddRange(IEnumerable<TEntity> entities)
         {
-            _dbSet.AddRange(entities);
+            await _dbSet.AddRangeAsync(entities);
         }
 
         public virtual IEnumerable<TEntity> GetAsNoTracking()
@@ -29,9 +29,9 @@ namespace WorkSchedule.Application.Data.Repositories
             return _dbSet.AsNoTracking<TEntity>();
         }
 
-        public virtual IEnumerable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public virtual async Task<IEnumerable<TEntity>> Get(
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "", bool noTracking = false)
         {
             IQueryable<TEntity> query = _dbSet;
@@ -55,22 +55,22 @@ namespace WorkSchedule.Application.Data.Repositories
 
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                return await orderBy(query).ToListAsync();
             }
             else
             {
-                return query.ToList();
+                return await query.ToListAsync();
             }
         }
 
-        public virtual TEntity? GetByID(object id)
+        public virtual async Task<TEntity> GetByID(object id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public virtual void Delete(object id)
+        public virtual async Task Delete(object id)
         {
-            TEntity entityToDelete = _dbSet.Find(id);
+            TEntity? entityToDelete = await _dbSet.FindAsync(id);
             if (entityToDelete != null)
             {
                 Delete(entityToDelete);
@@ -102,7 +102,7 @@ namespace WorkSchedule.Application.Data.Repositories
                 query = query.Include(includeProperty);
             }
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
         public virtual void Update(TEntity entityToUpdate)

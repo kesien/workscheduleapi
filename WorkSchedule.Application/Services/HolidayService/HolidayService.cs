@@ -25,7 +25,7 @@ namespace WorkSchedule.Application.Services.HolidayService
                 return null;
             }
             var holiday = new Holiday() { Day = day, Month = month, Year = year, IsFix = isFix };
-            _unitOfWork.HolidayRepository.Add(holiday);
+            await _unitOfWork.HolidayRepository.Add(holiday);
             _unitOfWork.Save();
             return holiday;
         }
@@ -44,7 +44,7 @@ namespace WorkSchedule.Application.Services.HolidayService
 
         public async Task<IEnumerable<Holiday>> GetAll()
         {
-            var holidays = _unitOfWork.HolidayRepository.Get();
+            var holidays = await _unitOfWork.HolidayRepository.Get();
             return holidays;
         }
 
@@ -56,7 +56,7 @@ namespace WorkSchedule.Application.Services.HolidayService
 
         public async Task<IEnumerable<Holiday>> Find(Expression<Func<Holiday, bool>> predicate)
         {
-            var holidays = _unitOfWork.HolidayRepository.Get(predicate, q => q.OrderBy(q => q.Month).ThenBy(q => q.Day));
+            var holidays = await _unitOfWork.HolidayRepository.Get(predicate, q => q.OrderBy(q => q.Month).ThenBy(q => q.Day));
             return holidays;
         }
     }

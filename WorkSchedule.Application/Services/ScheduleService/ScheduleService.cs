@@ -35,7 +35,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public async Task<MonthlySchedule?> CreateSchedule(int year, int month)
         {
             var schedule = await CreateBlankScheduleWithRequests(year, month);
-            var users = _unitOfWork.UserRepository.Get();
+            var users = await _unitOfWork.UserRepository.Get();
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             var days = (schedule.Days as List<Day>);
 
@@ -116,7 +116,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 schedule.WordFile = null;
                 throw new ApplicationException("Couldn't create Word file!");
             }
-            _unitOfWork.ScheduleRepository.Add(schedule);
+            await _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
             return schedule;
         }
@@ -154,7 +154,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         /// <returns></returns>
         public async Task<bool> DeleteSchedule(object id)
         {
-            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "WordFile").FirstOrDefault();
+            var schedule = (await _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "WordFile")).FirstOrDefault();
             if (schedule is null) 
             {
                 return false;
@@ -176,14 +176,14 @@ namespace WorkSchedule.Application.Services.ScheduleService
         /// <returns></returns>
         public async Task<MonthlySchedule> UpdateSchedule(object id, List<DayDto> dayDtos)
         {
-            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "Summaries,WordFile").FirstOrDefault();
+            var schedule = (await _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "Summaries,WordFile")).FirstOrDefault();
             if (schedule is null) 
             {
                 return null;
             }
-            var days = _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, 
+            var days = await _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, 
                 null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
-            var users = _unitOfWork.UserRepository.Get();
+            var users = await _unitOfWork.UserRepository.Get();
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             foreach (var dayDto in dayDtos)
             {
@@ -259,7 +259,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             schedule.Year = year;
             schedule.Month = month;
             schedule.Id = Guid.NewGuid();
-            var requests = _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month, null, "User");
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month, null, "User");
             for (var i = 0; i < schedule.Days.Count; i++)
             {
                 var date = DateTime.Parse($"{year}-{month}-{i + 1}");
@@ -284,7 +284,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
         private async Task<List<Day>> GetDays(int year, int month) 
         {
-            var holidays = _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && holiday.Month == month);
+            var holidays = await _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && holiday.Month == month);
             List<Day> days = new();
             for (int index = 1; index <= DateTime.DaysInMonth(year, month); index++)
             {

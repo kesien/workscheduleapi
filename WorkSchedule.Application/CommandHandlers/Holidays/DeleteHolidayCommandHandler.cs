@@ -20,7 +20,7 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
 
         public async Task<Unit> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)
         {
-            var holiday = _uow.HolidayRepository.GetByID(request.Id);
+            var holiday = await _uow.HolidayRepository.GetByID(request.Id);
             _uow.HolidayRepository.Delete(holiday);
             _uow.Save();
             return Unit.Value;

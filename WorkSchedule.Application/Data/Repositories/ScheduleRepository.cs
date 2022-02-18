@@ -12,10 +12,10 @@ namespace WorkSchedule.Application.Data.Repositories
             _dbSet = context.Set<MonthlySchedule>();
         }
 
-        public Task<MonthlySchedule>? GetByDate(int year, int month)
+        public async Task<MonthlySchedule> GetByDate(int year, int month)
         {
             IQueryable<MonthlySchedule> query = _dbSet;
-            return query.Where(schedule => schedule.Year == year && schedule.Month == month)
+            return await query.Where(schedule => schedule.Year == year && schedule.Month == month)
                         .Include(schedule => schedule.Days)
                         .ThenInclude(day => day.UsersScheduledForMorning)
                         .ThenInclude(morning => morning.User)

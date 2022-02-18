@@ -39,7 +39,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             }
             if (requesterRoles.Contains("Administrator") && request.Role is not null)
             {
-                await _userManager.AddToRoleAsync(userToChange, request.Role.ToString().ToUpper());
+                await _userManager.AddToRoleAsync(userToChange, request?.Role?.ToString().ToUpper());
             }
             await _userManager.UpdateAsync(userToChange);
             return Unit.Value;
@@ -47,7 +47,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
 
         private async Task UpdateSummaries(string id, string name)
         {
-            var summaries = _uow.SummaryRepository.Get(summary => summary.UserId == id);
+            var summaries = await _uow.SummaryRepository.Get(summary => summary.UserId == id);
             foreach (var summary in summaries)
             {
                 summary.Name = name;

@@ -18,7 +18,7 @@ namespace WorkSchedule.Application.QueryHandlers.Files
 
         public async Task<(string, byte[])> Handle(GetFileByFileNameQuery request, CancellationToken cancellationToken)
         {
-            var file = _uow.WordFileRepository.GetByID(request.Id);
+            var file = await _uow.WordFileRepository.GetByID(request.Id);
             if (file is null)
             {
                 throw new ApplicationException("The requested file doesn't exists!");

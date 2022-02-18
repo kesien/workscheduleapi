@@ -74,7 +74,7 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Holidays
             requests.Should().BeEmpty();
         }
 
-            private List<Request> GenerateEntities()
+        private List<Request> GenerateEntities()
         {
             var user = new User { Id = "b0844c05-e80b-442e-0000-25470ee6c970", Name = "test", UserName = "test" };
             var user2 = new User { Id = "b0844c05-e80b-442e-0001-25470ee6c970", Name = "test2", UserName = "test2" };
