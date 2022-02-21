@@ -21,7 +21,7 @@ jobs:
           command: dotnet restore
       - save_cache:
           paths:
-            - C:\Users\circleci\.nuget\packages
+            - circleci/.nuget/packages
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: "Run Application Tests"
