@@ -29,11 +29,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRequest(RequestDto requestDto)
+        public async Task<IActionResult> CreateRequest([FromBody] AddNewRequestCommand command)
         {
-            var userIdentity = HttpContext.User.Identity as ClaimsIdentity;
-            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var result = await _mediator.Send(new AddNewRequestCommand() { Date = requestDto.Date, Type = requestDto.Type, UserId = userId });
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
 

@@ -19,7 +19,7 @@ namespace WorkSchedule.Application.Services.DropboxService
             {
                 try
                 {
-                    await _dropBox.Files.DeleteAsync(file);
+                    await _dropBox.Files.DeleteV2Async(file);
                     return true;
                 }
                 catch (Exception ex)

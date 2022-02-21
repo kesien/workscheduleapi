@@ -7,6 +7,7 @@ using WorkSchedule.Application.Data.Seeds;
 using WorkSchedule.Application.Extensions;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
+using WorkSchedule.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,19 +65,11 @@ app.UseSwaggerUI();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
-} else {
-    app.UseExceptionHandler(builder => {
-        builder.Run(async context => {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var error = context.Features.Get<IExceptionHandlerFeature>();
-            if (error is not null)
-            {
-                context.Response.AddApplicationError(error.Error.Message);
-                await context.Response.WriteAsync(error.Error.Message);
-            }
-        });
-    });
+    app.UseMiddleware<ExceptionMiddleware>();
+    //app.UseDeveloperExceptionPage();
+} else
+{
+    app.UseMiddleware<ExceptionMiddleware>();
 }
 app.UseCors(options => {
     options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
