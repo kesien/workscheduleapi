@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using WorkSchedule.Api.Queries.Files;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Services.DropboxService;
 
 namespace WorkSchedule.Application.QueryHandlers.Files
@@ -21,12 +22,12 @@ namespace WorkSchedule.Application.QueryHandlers.Files
             var file = await _uow.WordFileRepository.GetByID(request.Id);
             if (file is null)
             {
-                throw new ApplicationException("The requested file doesn't exists!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "The requested file doesn't exists!" } };
             }
             var bytes = await _dropbox.GetFile($"/{file.FilePath}");
             if (bytes is null)
             {
-                throw new ApplicationException("The requested file doesn't exists on DropBox!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "The requested file doesn't exists on DropBox!" } };
             }
             return (file.FileName, bytes);
         }

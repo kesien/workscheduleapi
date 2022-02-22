@@ -31,7 +31,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             var userToChange = await _userManager.FindByIdAsync(request.Id);
             if (userToChange is null || (request.RequesterId != request.Id && !requesterRoles.Contains("Administrator")))
             {
-                throw new ApplicationException("You don't have enough permission!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have enough permission!" } };
             }
             if (!string.IsNullOrEmpty(request.Password) && !string.IsNullOrWhiteSpace(request.Password))
             {

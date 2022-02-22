@@ -4,6 +4,7 @@ using WorkSchedule.Application.Data;
 using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.Services.FileService;
+using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.Application.Services.ScheduleService
 {
@@ -112,9 +113,8 @@ namespace WorkSchedule.Application.Services.ScheduleService
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
                 schedule.WordFile = null;
-                throw new ApplicationException("Couldn't create Word file!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Couldn't create Word file!" } };
             }
             await _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
