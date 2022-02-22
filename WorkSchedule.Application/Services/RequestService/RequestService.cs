@@ -69,8 +69,8 @@ namespace WorkSchedule.Application.Services.RequestService
             return requests;
         }
 
-        public async Task<IEnumerable<Request>> GetAllRequestsForUser(string userId) {
-            var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId, request => request.OrderBy(r => r.Date));
+        public async Task<IEnumerable<Request>> GetAllRequestsForUser(Guid userId) {
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId.ToString(), request => request.OrderBy(r => r.Date), "User");
             return requests;
         }
 
@@ -88,14 +88,10 @@ namespace WorkSchedule.Application.Services.RequestService
 
         private async Task<bool> CheckRequest(string userId, DateTime requestDate, RequestType type)
         {
-            var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
-            var reqDate = new DateTime(requestDate.Date.Year, requestDate.Date.Month, 1, 0, 0, 0);
-            int result = DateTime.Compare(requestDate, date);
             var request = (await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId && request.Date == requestDate)).Any();
-            var isWeekend = IsWeekend(requestDate);
             var isHoliday = await IsHoliday(requestDate);
             var isThereAScheduleAlready = await IsThereAScheduleForThisMonth(requestDate.Date.Year, requestDate.Date.Month);
-            return request || result == -1 || isWeekend || isHoliday || isThereAScheduleAlready;
+            return request || isHoliday || isThereAScheduleAlready;
         }
 
         private async Task<bool> IsThereAScheduleForThisMonth(int year, int month)
@@ -103,8 +99,6 @@ namespace WorkSchedule.Application.Services.RequestService
             var result = await _unitOfWork.ScheduleRepository.Get(schedule => schedule.Year == year && schedule.Month == month, null, "", true);
             return result.Any();
         }
-
-        private bool IsWeekend(DateTime date) => date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
 
         private async Task<bool> IsHoliday(DateTime date)
         {

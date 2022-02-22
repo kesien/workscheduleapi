@@ -1,9 +1,20 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 
 namespace WorkSchedule.Api.Commands.Requests
 {
     public class DeleteRequestCommand : IRequest<Unit>
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
+    }
+
+    public class DeleteRequestCommandValidator : AbstractValidator<DeleteRequestCommand>
+    {
+        public DeleteRequestCommandValidator()
+        {
+            RuleFor(c => c.Id)
+                .NotNull()
+                .NotEmpty();
+        }
     }
 }

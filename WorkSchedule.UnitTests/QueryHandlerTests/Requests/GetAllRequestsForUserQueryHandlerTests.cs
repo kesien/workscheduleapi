@@ -36,7 +36,7 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Requests
         [Fact]
         public async Task GetAllRequestsQueryHandler_Should_ReturnAllRequests()
         {
-            var query = new GetAllRequestsForUserQuery() { UserId = "b0844c05-e80b-442e-0000-25470ee6c970" };
+            var query = new GetAllRequestsForUserQuery() { UserId = Guid.Parse("b0844c05-e80b-442e-0000-25470ee6c970") };
             var handler = new GetAllRequestsForUserQueryHandler(_requestService, _mapper);
             var requests = await handler.Handle(query, CancellationToken.None);
             requests.Should().NotBeNull();
@@ -59,7 +59,7 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Requests
         [Fact]
         public async Task InvalidUser_Should_ReturnAnEmptyList()
         {
-            var query = new GetAllRequestsForUserQuery() { UserId = "b0844c05-e80b-442e-1111-25470ee6c970" };
+            var query = new GetAllRequestsForUserQuery() { UserId = Guid.Parse("b0844c05-e80b-442e-1111-25470ee6c970") };
             var handler = new GetAllRequestsForUserQueryHandler(_requestService, _mapper);
             var requests = await handler.Handle(query, CancellationToken.None);
             requests.Should().NotBeNull();

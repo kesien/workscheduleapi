@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using WorkSchedule.Api.Commands.Users;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.CommandHandlers.Users
@@ -19,6 +20,12 @@ namespace WorkSchedule.Application.CommandHandlers.Users
 
         public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
+            var validator = new UpdateUserCommandValidator();
+            var validatorResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validatorResult.IsValid)
+            {
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = validatorResult.Errors.Select(e => e.ErrorMessage).ToList() };
+            }
             var requester = await _userManager.FindByIdAsync(request.RequesterId);
             var requesterRoles = await _userManager.GetRolesAsync(requester);
             var userToChange = await _userManager.FindByIdAsync(request.Id);

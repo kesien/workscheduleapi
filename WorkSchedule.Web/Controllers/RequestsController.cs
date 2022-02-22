@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using WorkSchedule.Api.Commands.Requests;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Requests;
 
 namespace Controllers
@@ -36,7 +34,7 @@ namespace Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllRequestsForUser(string userId)
+        public async Task<IActionResult> GetAllRequestsForUser(Guid userId)
         {
             var requests = await _mediator.Send(new GetAllRequestsForUserQuery() { UserId = userId });
             return Ok(requests);
@@ -55,10 +53,10 @@ namespace Controllers
             return Ok(requests);
         }
 
-        [HttpDelete("{requestId}")]
-        public async Task<IActionResult> DeleteRequest(string requestId)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteRequest([FromBody] DeleteRequestCommand deleteCommand)
         {
-            var result = await _mediator.Send(new DeleteRequestCommand() { Id = requestId });
+            await _mediator.Send(deleteCommand);
             return NoContent();
         }
     }

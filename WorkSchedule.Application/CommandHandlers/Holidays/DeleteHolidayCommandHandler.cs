@@ -1,11 +1,7 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.Application.CommandHandlers.Holidays
 {
@@ -20,6 +16,12 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
 
         public async Task<Unit> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)
         {
+            var validator = new DeleteHolidayCommanddValidator();
+            var validatorResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validatorResult.IsValid)
+            {
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = validatorResult.Errors.Select(e => e.ErrorMessage).ToList() };
+            }
             var holiday = await _uow.HolidayRepository.GetByID(request.Id);
             _uow.HolidayRepository.Delete(holiday);
             _uow.Save();

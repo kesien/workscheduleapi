@@ -20,8 +20,8 @@ namespace Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSchedule([FromQuery] int year, [FromQuery] int month) 
+        [HttpGet("{year}/{month}")]
+        public async Task<IActionResult> GetSchedule(int year, int month) 
         {
             var schedule = await _mediator.Send(new GetScheduleByDateQuery() { Month = month, Year = year });
             return Ok(schedule);
@@ -29,39 +29,25 @@ namespace Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public async Task<IActionResult> CreateSchedule(CreateScheduleDto createScheduleDto)
+        public async Task<IActionResult> CreateSchedule([FromBody] AddNewScheduleCommand addNewScheduleCommand)
         {
-            var schedule = await _mediator.Send(
-                new AddNewScheduleCommand()
-                {
-                    UserId = createScheduleDto.UserId,
-                    Month = createScheduleDto.Month,
-                    Year = createScheduleDto.Year
-                });
+            var schedule = await _mediator.Send(addNewScheduleCommand);
             return Ok(schedule);
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSchedule(Guid id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteSchedule([FromBody] DeleteScheduleCommand deleteCommand)
         {
-            await _mediator.Send(new DeleteScheduleCommand() { Id = id });
+            await _mediator.Send(deleteCommand);
             return NoContent();
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSchedule(string id, List<DayDto> daysToUpdate)
+        [HttpPut]
+        public async Task<IActionResult> UpdateSchedule([FromBody] UpdateScheduleCommand updateCommand)
         {
-            var userIdentity = HttpContext.User.Identity as ClaimsIdentity;
-            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var schedule = await _mediator.Send(
-                new UpdateScheduleCommand()
-                { 
-                    Id = id,
-                    Days = daysToUpdate,
-                    UserId = userId
-                });
+            var schedule = await _mediator.Send(updateCommand);
             return Ok(schedule);
         }
     }

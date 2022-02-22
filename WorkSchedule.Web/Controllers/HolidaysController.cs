@@ -39,10 +39,10 @@ namespace Controllers
             return Ok(holidays);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHoliday(Guid id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteHoliday([FromBody] DeleteHolidayCommand deleteCommand)
         {
-            await _mediator.Send(new DeleteHolidayCommand() { Id = id });
+            await _mediator.Send(deleteCommand);
             return NoContent();
         }
     }
