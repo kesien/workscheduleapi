@@ -12,6 +12,7 @@ using WorkSchedule.Application.Services.DropboxService;
 using WorkSchedule.UnitTests.MockRepositories;
 using Xunit;
 using FluentAssertions;
+using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.UnitTests.QueryHandlerTests.Files
 {
@@ -56,8 +57,8 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Files
             var query = new GetFileByFileNameQuery { Id = Guid.Parse("7c1f48c0-97fe-4b54-0000-73cad8c34634") };
             var queryHandler = new GetFileByFileNameQueryHandler(_uow, _dropboxService);
             await queryHandler.Awaiting(y => y.Handle(query, CancellationToken.None)).Should()
-                .ThrowAsync<ApplicationException>()
-                .WithMessage("The requested file doesn't exists!");
+                .ThrowAsync<BusinessException>()
+                .Where(e => e.ErrorMessages.Contains("The requested file doesn't exists!"));
         }
 
         [Fact(DisplayName = "Valid Id Should Throw Exception If Not Found On Dropbox")]
@@ -70,8 +71,8 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Files
             var query = new GetFileByFileNameQuery { Id = Guid.Parse("7c1f48c0-97fe-4b54-9b4c-73cad8c34634") };
             var queryHandler = new GetFileByFileNameQueryHandler(_uow, _dropboxService);
             await queryHandler.Awaiting(y => y.Handle(query, CancellationToken.None)).Should()
-                .ThrowAsync<ApplicationException>()
-                .WithMessage("The requested file doesn't exists on DropBox!");
+                .ThrowAsync<BusinessException>()
+                .Where(e => e.ErrorMessages.Contains("The requested file doesn't exists on DropBox!"));
         }
 
         private List<WordFile> GenerateEntities()
