@@ -6,7 +6,7 @@ namespace WorkSchedule.Application.Services.HolidayService
 {
     public interface IHolidayService
     {
-        Task<Holiday>? Add(int day, int month, int year, bool isFix);
+        Task<Holiday>? Add(DateTime date, bool isFix);
         Task<bool> Delete(Guid id);
         Task<IEnumerable<Holiday>> GetAll();
         Task<Holiday> GetByDate(DateTime date);

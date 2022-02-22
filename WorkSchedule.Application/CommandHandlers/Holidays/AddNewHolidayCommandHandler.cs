@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Api.Dtos;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Services.HolidayService;
 
 namespace WorkSchedule.Application.CommandHandlers.Holidays
@@ -24,14 +20,16 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
 
         public async Task<HolidayDto> Handle(AddNewHolidayCommand request, CancellationToken cancellationToken)
         {
-            if (request.Year == 0 && !request.IsFix)
+            var validator = new AddNewHolidayCommandValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
             {
-                throw new ApplicationException("Please provide a year for not fix holidays!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList() };
             }
-            var result = await _holidayService.Add(request.Day, request.Month, request.Year, request.IsFix);
+            var result = await _holidayService.Add(request.Date, request.IsFix);
             if (result is null)
             {
-                throw new ApplicationException("There is already a holiday registered for this date!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "There is already a holiday registered for this date!" } };
             }
             return _mapper.Map<HolidayDto>(result);
         }

@@ -10,7 +10,7 @@ namespace WorkSchedule.Api.Queries.Requests
 {
     public class GetAllRequestsForUserByDateQuery : IRequest<List<RequestWithUserDto>>
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
     }

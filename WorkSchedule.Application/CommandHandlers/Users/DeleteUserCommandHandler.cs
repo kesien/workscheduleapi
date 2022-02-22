@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Users;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.CommandHandlers.Users
@@ -24,6 +25,12 @@ namespace WorkSchedule.Application.CommandHandlers.Users
 
         public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
+            var validator = new DeleteUserCommandValidator();
+            var validatorResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validatorResult.IsValid)
+            {
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = validatorResult.Errors.Select(e => e.ErrorMessage).ToList() };
+            }
             var user = await _userManager.FindByIdAsync(request.Id);
             if (user != null)
             {

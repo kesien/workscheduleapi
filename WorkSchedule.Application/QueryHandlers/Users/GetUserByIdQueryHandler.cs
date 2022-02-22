@@ -5,6 +5,7 @@ using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency.Entities;
 using Microsoft.AspNetCore.Identity;
+using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.Application.QueryHandlers.Users
 {
@@ -23,14 +24,14 @@ namespace WorkSchedule.Application.QueryHandlers.Users
         {
             if (string.IsNullOrEmpty(request.RequesterId))
             {
-                throw new ApplicationException("You don't have permission to access this data!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to access this data!" } };
             }
             var requesterUser = await _userManager.FindByIdAsync(request.RequesterId);
             var requesterRoles = await _userManager.GetRolesAsync(requesterUser);
             var user = await _userManager.FindByIdAsync(request.Id);
             if (user is null || (request.Id != request.RequesterId && !requesterRoles.Contains("Administrator")))
             {
-                throw new ApplicationException("You don't have permission to access this data!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to access this data!" } };
             }
             return _mapper.Map<UserToListDto>(user);
         }

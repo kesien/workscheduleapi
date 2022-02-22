@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
-using AutoMapper;
 using WorkSchedule.Application.Data;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.HolidayService
@@ -9,27 +7,29 @@ namespace WorkSchedule.Application.Services.HolidayService
     public class HolidayService : IHolidayService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public HolidayService(IMapper mapper, IUnitOfWork unitOfWork)
+        public HolidayService(IUnitOfWork unitOfWork)
         {
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Holiday>? Add(int day, int month, int year, bool isFix)
+        public async Task<Holiday>? Add(DateTime date, bool isFix)
         {
-            var holidays = await Find(h => h.Day == day && h.Month == month);
+            var holidays = await Find(h => h.Day == date.Day && h.Month == date.Month);
             if (holidays.Any() && isFix)
             {
                 return null;
             }
-            if (!isFix && holidays.Where(h => h.Year == year).Any())
+            if (!isFix && holidays.Where(h => h.Year == date.Year).Any())
             {
                 return null;
             }
-            var holiday = new Holiday() { Day = day, Month = month, Year = year, IsFix = isFix };
-            _unitOfWork.HolidayRepository.Add(holiday);
+            var holiday = new Holiday() { Day = date.Day, Month = date.Month, IsFix = isFix };
+            if (!isFix)
+            {
+                holiday.Year = date.Year;
+            }
+            await _unitOfWork.HolidayRepository.Add(holiday);
             _unitOfWork.Save();
             return holiday;
         }
@@ -48,19 +48,19 @@ namespace WorkSchedule.Application.Services.HolidayService
 
         public async Task<IEnumerable<Holiday>> GetAll()
         {
-            var holidays = _unitOfWork.HolidayRepository.Get();
+            var holidays = await _unitOfWork.HolidayRepository.Get();
             return holidays;
         }
 
         public async Task<Holiday> GetByDate(DateTime date)
         {
             var holiday = await _unitOfWork.HolidayRepository.FindAsync(holiday => holiday.Year == date.Year && holiday.Month == date.Month && holiday.Day == date.Day);
-            return holiday;
+            return holiday.First();
         }
 
         public async Task<IEnumerable<Holiday>> Find(Expression<Func<Holiday, bool>> predicate)
         {
-            var holidays = _unitOfWork.HolidayRepository.Get(predicate, q => q.OrderBy(q => q.Month).ThenBy(q => q.Day));
+            var holidays = await _unitOfWork.HolidayRepository.Get(predicate, q => q.OrderBy(q => q.Month).ThenBy(q => q.Day));
             return holidays;
         }
     }

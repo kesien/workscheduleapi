@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Application.Helpers;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Services.DropboxService;
@@ -67,6 +69,7 @@ namespace WorkSchedule.Application.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddValidatorsFromAssemblyContaining<AddNewHolidayCommandValidator>();
             services.Configure<EmailClientSettings>(options =>
             {
                 options.ApiKey = configuration["EmailClientSettings:ApiKey"];

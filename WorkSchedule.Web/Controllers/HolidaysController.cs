@@ -26,16 +26,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateNewHoliday(HolidayDto holidayDto)
+        public async Task<IActionResult> CreateNewHoliday([FromBody] AddNewHolidayCommand command)
         {
-            var holiday = await _mediator.Send(
-                new AddNewHolidayCommand() 
-                { 
-                    Day = holidayDto.Day,
-                    IsFix = holidayDto.IsFix,
-                    Month = holidayDto.Month,
-                    Year = holidayDto.Year
-                });
+            var holiday = await _mediator.Send(command);
             return Ok(holiday);
         }
 
@@ -46,10 +39,10 @@ namespace Controllers
             return Ok(holidays);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHoliday(Guid id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteHoliday([FromBody] DeleteHolidayCommand deleteCommand)
         {
-            await _mediator.Send(new DeleteHolidayCommand() { Id = id });
+            await _mediator.Send(deleteCommand);
             return NoContent();
         }
     }

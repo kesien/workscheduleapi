@@ -10,6 +10,6 @@ namespace WorkSchedule.Api.Queries.Requests
 {
     public class GetAllRequestsForUserQuery : IRequest<List<RequestWithUserDto>>
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

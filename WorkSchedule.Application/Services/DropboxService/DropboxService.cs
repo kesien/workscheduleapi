@@ -10,7 +10,7 @@ namespace WorkSchedule.Application.Services.DropboxService
 
         public DropboxService(IConfiguration config)
         {
-            _accessToken = config.GetSection("DropboxToken").Value;
+            _accessToken = config.GetSection("DROPBOX_TOKEN").Value;
         }
 
         public async Task<bool> DeleteFile(string file)
@@ -19,7 +19,7 @@ namespace WorkSchedule.Application.Services.DropboxService
             {
                 try
                 {
-                    await _dropBox.Files.DeleteAsync(file);
+                    await _dropBox.Files.DeleteV2Async(file);
                     return true;
                 }
                 catch (Exception ex)

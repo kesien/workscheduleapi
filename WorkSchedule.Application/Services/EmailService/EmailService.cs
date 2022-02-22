@@ -26,6 +26,11 @@ namespace WorkSchedule.Application.Services.EmailService
 
         private async Task<Response> SendEmail(string templateId, string adminId, int year, int month)
         {
+            bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+            if (IsDevelopment)
+            {
+                return null;
+            }
             var adminName = await GetAdminName(adminId);
             var users = GetUsers();
             var data = new List<object>();

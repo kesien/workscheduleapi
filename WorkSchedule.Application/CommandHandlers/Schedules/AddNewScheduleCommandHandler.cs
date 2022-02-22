@@ -2,6 +2,7 @@
 using MediatR;
 using WorkSchedule.Api.Commands.Schedules;
 using WorkSchedule.Api.Dtos;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Services.EmailService;
 using WorkSchedule.Application.Services.ScheduleService;
 
@@ -22,15 +23,22 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
 
         public async Task<ScheduleDto> Handle(AddNewScheduleCommand request, CancellationToken cancellationToken)
         {
+            var validator = new AddNewScheduleCommandValidator();
+            var validatorResult = await validator.ValidateAsync(request, cancellationToken);
+
+            if (!validatorResult.IsValid)
+            {
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = validatorResult.Errors.Select(e => e.ErrorMessage).ToList() };
+            }
             var schedule = await _scheduleService.CheckSchedule(request.Year, request.Month);
             if (schedule)
             {
-                throw new ApplicationException($"There is a schedule on date: { request.Year }-{ request.Month}");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"There is a schedule on date: { request.Year }-{ request.Month}" } };
             }
             var newSchedule = await _scheduleService.CreateSchedule(request.Year, request.Month);
             if (newSchedule is null)
             {
-                throw new ApplicationException($"Couldn't create schedule on date: {request.Year}-{request.Month}");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't create schedule on date: {request.Year}-{request.Month}" } };
             }
             var scheduleDto = _mapper.Map<ScheduleDto>(newSchedule);
             scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();

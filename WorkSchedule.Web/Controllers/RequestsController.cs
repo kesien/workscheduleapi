@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using WorkSchedule.Api.Commands.Requests;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Requests;
 
 namespace Controllers
@@ -29,23 +27,21 @@ namespace Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRequest(RequestDto requestDto)
+        public async Task<IActionResult> CreateRequest([FromBody] AddNewRequestCommand command)
         {
-            var userIdentity = HttpContext.User.Identity as ClaimsIdentity;
-            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var result = await _mediator.Send(new AddNewRequestCommand() { Date = requestDto.Date, Type = requestDto.Type, UserId = userId });
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllRequestsForUser(string userId)
+        public async Task<IActionResult> GetAllRequestsForUser(Guid userId)
         {
             var requests = await _mediator.Send(new GetAllRequestsForUserQuery() { UserId = userId });
             return Ok(requests);
         }
 
         [HttpGet("{userId}/{year}/{month}")]
-        public async Task<IActionResult> GetAllRequestsForUserByDate(string userId, int year, int month)
+        public async Task<IActionResult> GetAllRequestsForUserByDate(Guid userId, int year, int month)
         {
             var requests = await _mediator.Send(
                 new GetAllRequestsForUserByDateQuery()
@@ -57,10 +53,10 @@ namespace Controllers
             return Ok(requests);
         }
 
-        [HttpDelete("{requestId}")]
-        public async Task<IActionResult> DeleteRequest(string requestId)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteRequest([FromBody] DeleteRequestCommand deleteCommand)
         {
-            var result = await _mediator.Send(new DeleteRequestCommand() { Id = requestId });
+            await _mediator.Send(deleteCommand);
             return NoContent();
         }
     }

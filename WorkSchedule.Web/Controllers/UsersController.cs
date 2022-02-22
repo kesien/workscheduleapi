@@ -44,45 +44,25 @@ namespace Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserForRegisterDto userForRegisterDto)
+        public async Task<IActionResult> CreateUser([FromBody] AddNewUserCommand addNewUserCommand)
         {
-            var newUser = await _mediator.Send(
-                new AddNewUserCommand()
-                {
-                    Name = userForRegisterDto.Name,
-                    Password = userForRegisterDto.Password,
-                    Role = userForRegisterDto.Role,
-                    Username = userForRegisterDto.UserName
-                });
+            var newUser = await _mediator.Send(addNewUserCommand);
             return Ok(newUser);
         }
 
         [Authorize(Roles = "Administrator,User")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, UserForUpdateDto userForUpdateDto)
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand updateUserCommand)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            var userId = "";
-            if (identity != null)
-            {
-                userId = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            }
-            await _mediator.Send(
-                new UpdateUserCommand(userId, id)
-                {
-                    Name = userForUpdateDto.Name,
-                    Password = userForUpdateDto.Password,
-                    Role = userForUpdateDto.Role,
-                    Username = userForUpdateDto.UserName
-                });
+            await _mediator.Send(updateUserCommand);
             return NoContent();
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUserCommand deleteUserCommand)
         {
-            await _mediator.Send(new DeleteUserCommand() { Id = id });
+            await _mediator.Send(deleteUserCommand);
             return NoContent();
         }
     }

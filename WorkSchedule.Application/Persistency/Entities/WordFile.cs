@@ -1,7 +1,8 @@
 namespace WorkSchedule.Application.Persistency.Entities
 {
-    public class WordFile : BaseEntity
+    public class WordFile : IBaseEntity
     {
+        public Guid Id { get; set; }
         public string FilePath { get; set; }
         public string FileName { get; set; }
         public Guid MonthlyScheduleId { get; set; }

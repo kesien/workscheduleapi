@@ -1,25 +1,23 @@
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using WorkSchedule.Api.Constants;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.Services.FileService;
+using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.Application.Services.ScheduleService
 {
     public class ScheduleService : IScheduleService
     {
-        private readonly IMapper _mapper;
         private readonly Random _random;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
 
 
         #region Constructor
-        public ScheduleService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
+        public ScheduleService(IUnitOfWork unitOfWork, IFileService fileService)
         {
-            _mapper = mapper;
             _random = new Random();
             _unitOfWork = unitOfWork;
             _fileService = fileService;
@@ -36,27 +34,27 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public async Task<MonthlySchedule?> CreateSchedule(int year, int month)
         {
             var schedule = await CreateBlankScheduleWithRequests(year, month);
-            var users = _unitOfWork.UserRepository.Get();
+            var users = await _unitOfWork.UserRepository.Get();
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             var days = (schedule.Days as List<Day>);
 
             var helperCounter = 1;
             var previousDay = days[0];
-            for (var index = 0; index < days.Count; index++)
+            for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
             {
-                var day = days[index];
-                var tempIndex = index;
+                var day = days[dayIndex];
+                var tempIndex = dayIndex;
 
                 if (day.IsHoliday || day.IsWeekend)
                 {
                     continue;
                 }
                 schedule.NumOfWorkdays++;
-                var maxNumberOfUsersForMorning = index % 2 == 0 ? users.Count() / 2 : (int)Math.Ceiling(users.Count() / 2.0);
-                if (index % 2 == 0) 
+                var maxNumberOfUsersForMorning = dayIndex % 2 == 0 ? users.Count() / 2 : (int)Math.Ceiling(users.Count() / 2.0);
+                if (dayIndex % 2 == 0) 
                 {
-                    GenerateMorningSchedules(helperCounter, maxNumberOfUsersForMorning, day, userSchedules);
-                    GenerateForenoonSchedules(day, userSchedules);
+                    day = GenerateMorningSchedules(helperCounter, maxNumberOfUsersForMorning, day, userSchedules);
+                    day = GenerateForenoonSchedules(day, userSchedules);
                 }
                 else 
                 {
@@ -64,9 +62,14 @@ namespace WorkSchedule.Application.Services.ScheduleService
                     List<MorningSchedule> morningSchedules = new();
                     if (!previousDay.IsHoliday && !previousDay.IsWeekend) 
                     {
-                        morningSchedules = usersNotScheduledYet.Where(schedule => previousDay.UsersScheduledForForenoon.Where(user => user.User.Id == schedule.User.Id).Any() || previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any()).Select(schedule => new MorningSchedule { User = schedule.User }).ToList();
+                        morningSchedules = usersNotScheduledYet.Where(schedule => 
+                            previousDay.UsersScheduledForForenoon.Where(user => 
+                                user.User.Id == schedule.User.Id).Any() || 
+                                previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any())
+                            .Select(schedule => new MorningSchedule { User = schedule.User })
+                            .ToList();
                     }
-                    if (morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) 
+                    if ((morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) && usersNotScheduledYet.Count != 0) 
                     {
                         while (morningSchedules.Count < maxNumberOfUsersForMorning)
                         {
@@ -94,9 +97,9 @@ namespace WorkSchedule.Application.Services.ScheduleService
                             day.UsersScheduledForMorning.Add(morningschedule);
                         }
                     }
-                    GenerateForenoonSchedules(day, userSchedules);
+                    day = GenerateForenoonSchedules(day, userSchedules);
                 }
-                UpdateUserSchedules(day, userSchedules);
+                userSchedules = UpdateUserSchedules(day, userSchedules);
                 previousDay = day;
                 helperCounter++;
             }
@@ -106,12 +109,12 @@ namespace WorkSchedule.Application.Services.ScheduleService
             {
                 schedule.WordFile = await _fileService.GenerateWordDoc(schedule, (int)Math.Ceiling(users.Count() / 2.0));
             }
-            catch (IndexOutOfRangeException ex)
+            catch (Exception ex)
             {
                 schedule.WordFile = null;
-                throw new ApplicationException("Couldn't create Word file!");
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Couldn't create Word file!" } };
             }
-            _unitOfWork.ScheduleRepository.Add(schedule);
+            await _unitOfWork.ScheduleRepository.Add(schedule);
             _unitOfWork.Save();
             return schedule;
         }
@@ -135,7 +138,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public async Task<bool> CheckSchedule(int year, int month)
         {
             var schedule = await _unitOfWork.ScheduleRepository.FindAsync(schedule => schedule.Year == year && schedule.Month == month);
-            if (schedule is not null) 
+            if (schedule.Any()) 
             {
                 return true;
             }
@@ -149,7 +152,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         /// <returns></returns>
         public async Task<bool> DeleteSchedule(object id)
         {
-            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "WordFile").FirstOrDefault();
+            var schedule = (await _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "WordFile")).FirstOrDefault();
             if (schedule is null) 
             {
                 return false;
@@ -171,13 +174,14 @@ namespace WorkSchedule.Application.Services.ScheduleService
         /// <returns></returns>
         public async Task<MonthlySchedule> UpdateSchedule(object id, List<DayDto> dayDtos)
         {
-            var schedule = _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "Summaries,WordFile").FirstOrDefault();
+            var schedule = (await _unitOfWork.ScheduleRepository.Get(schedule => schedule.Id == (Guid)id, null, "Summaries,WordFile")).FirstOrDefault();
             if (schedule is null) 
             {
                 return null;
             }
-            var days = _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
-            var users = _unitOfWork.UserRepository.Get();
+            var days = await _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month, 
+                null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
+            var users = await _unitOfWork.UserRepository.Get();
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             foreach (var dayDto in dayDtos)
             {
@@ -253,7 +257,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             schedule.Year = year;
             schedule.Month = month;
             schedule.Id = Guid.NewGuid();
-            var requests = _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month, null, "User");
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month, null, "User");
             for (var i = 0; i < schedule.Days.Count; i++)
             {
                 var date = DateTime.Parse($"{year}-{month}-{i + 1}");
@@ -262,9 +266,15 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 {
                     continue;
                 }
-                day.UsersScheduledForMorning = requests.Where(request => request.Date == date && request.Type == RequestType.MORNING).Select(request => new MorningSchedule { User = request.User, IsRequest = true }).ToList();
-                day.UsersScheduledForForenoon = requests.Where(request => request.Date == date && request.Type == RequestType.FORENOON).Select(request => new Forenoonschedule { User = request.User, IsRequest = true }).ToList();
-                day.UsersOnHoliday = requests.Where(request => request.Date == date && request.Type == RequestType.HOLIDAY).Select(request => new HolidaySchedule { User = request.User }).ToList();
+                day.UsersScheduledForMorning = requests.Where(request => request.Date == date && request.Type == RequestType.MORNING)
+                    .Select(request => new MorningSchedule { User = request.User, IsRequest = true })
+                    .ToList();
+                day.UsersScheduledForForenoon = requests.Where(request => request.Date == date && request.Type == RequestType.FORENOON)
+                    .Select(request => new Forenoonschedule { User = request.User, IsRequest = true })
+                    .ToList();
+                day.UsersOnHoliday = requests.Where(request => request.Date == date && request.Type == RequestType.HOLIDAY)
+                    .Select(request => new HolidaySchedule { User = request.User })
+                    .ToList();
             }
 
            return schedule;
@@ -272,7 +282,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
         private async Task<List<Day>> GetDays(int year, int month) 
         {
-            var holidays = _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year && holiday.Month == month) || holiday.IsFix);
+            var holidays = await _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && holiday.Month == month);
             List<Day> days = new();
             for (int index = 1; index <= DateTime.DaysInMonth(year, month); index++)
             {
@@ -296,28 +306,32 @@ namespace WorkSchedule.Application.Services.ScheduleService
 
         private List<Summary> GenerateSummary(List<UserSchedule> userSchedules)
         {
-            List<Summary> summaries = userSchedules.Select(userSchedule => new Summary 
-                                        { 
-                                            UserId = userSchedule.User.Id,
-                                            Name = userSchedule.User.Name,
-                                            Morning = userSchedule.NumOfMorningSchedules - userSchedule.NumOfHolidays,
-                                            Forenoon = userSchedule.NumOfForenoonSchedules,
-                                            Holiday = userSchedule.NumOfHolidays
-                                        }).ToList();
+            List<Summary> summaries = userSchedules.Select(userSchedule => 
+                new Summary 
+                { 
+                    UserId = userSchedule.User.Id,
+                    Name = userSchedule.User.Name,
+                    Morning = userSchedule.NumOfMorningSchedules - userSchedule.NumOfHolidays,
+                    Forenoon = userSchedule.NumOfForenoonSchedules,
+                    Holiday = userSchedule.NumOfHolidays
+                }).ToList();
             return summaries;
         }
 
-        private void GenerateForenoonSchedules(Day day, List<UserSchedule> userSchedules)
+        private Day GenerateForenoonSchedules(Day day, List<UserSchedule> userSchedules)
         {
             var usersNotScheduledYet = GetUsersNotScheduledYet(day, userSchedules);
-            List<Forenoonschedule> forenoonschedules = usersNotScheduledYet.Select(schedules => new Forenoonschedule { User = schedules.User }).ToList();
+            List<Forenoonschedule> forenoonschedules = usersNotScheduledYet
+                .Select(schedules => new Forenoonschedule { User = schedules.User })
+                .ToList();
             foreach (var schedule in forenoonschedules)
             {
                 day.UsersScheduledForForenoon.Add(schedule);
             }
+            return day;
         }
 
-        private void GenerateMorningSchedules(int helperCounter, int maxUsersForMorning, Day day, List<UserSchedule> userSchedules)
+        private Day GenerateMorningSchedules(int helperCounter, int maxUsersForMorning, Day day, List<UserSchedule> userSchedules)
         {
             var usersNotScheduledYet = GetUsersNotScheduledYet(day, userSchedules);
             var possibleUsers = usersNotScheduledYet.Where(userSchedule => userSchedule.NumOfMorningSchedules < helperCounter).ToList();
@@ -327,9 +341,10 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 day.UsersScheduledForMorning.Add(new MorningSchedule { User = randomUserSchedule.User });
                 possibleUsers.Remove(randomUserSchedule);
             }
+            return day;
         }
 
-        private void UpdateUserSchedules(Day day, List<UserSchedule> userSchedules)
+        private List<UserSchedule> UpdateUserSchedules(Day day, List<UserSchedule> userSchedules)
         {
             foreach (var userSchedule in userSchedules)
             {
@@ -339,6 +354,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 userSchedule.NumOfForenoonSchedules += day.UsersScheduledForForenoon.Where(user => user.User.Id == userSchedule.User.Id).ToList().Count;
                 userSchedule.NumOfHolidays += holidayCount;
             }
+            return userSchedules;
         }
 
         private bool IsHoliday(Day day, IEnumerable<Holiday> holidays) 
