@@ -19,7 +19,7 @@ namespace WorkSchedule.Application.QueryHandlers.Requests
 
         public async Task<List<RequestWithUserDto>> Handle(GetAllRequestsForUserByDateQuery request, CancellationToken cancellationToken)
         {
-            var requests = await _requestService.GetAllRequestsForUserByDate(request.UserId.ToString(), request.Year, request.Month);
+            var requests = await _requestService.GetAllRequestsForUserByDate(request.UserId, request.Year, request.Month);
             return _mapper.Map<List<RequestWithUserDto>>(requests);
         }
     }

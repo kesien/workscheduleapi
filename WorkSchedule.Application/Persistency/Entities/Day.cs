@@ -2,9 +2,9 @@
 
 namespace WorkSchedule.Application.Persistency.Entities
 {
-    public class Day : BaseEntity
+    public class Day : IBaseEntity
     {
-        [Required]
+        public Guid Id { get; set; }
         public DateTime Date { get; set; }
         public bool IsHoliday { get; set; }
         public bool IsWeekend { get; set; }

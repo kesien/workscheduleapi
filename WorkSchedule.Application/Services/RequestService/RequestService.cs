@@ -15,7 +15,7 @@ namespace WorkSchedule.Application.Services.RequestService
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Request> CreateRequest(string userId, DateTime date, RequestType type)
+        public async Task<Request> CreateRequest(Guid userId, DateTime date, RequestType type)
         {
             var requestIsInvalid = await CheckRequest(userId, date, type);
             var user = (await _unitOfWork.UserRepository.Get(user => user.Id == userId, null, "", true)).FirstOrDefault();
@@ -54,7 +54,7 @@ namespace WorkSchedule.Application.Services.RequestService
             return requests;
         }
 
-        public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(string userId, int year, int month)
+        public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month)
         {
             if (year == 0) {
                 year = DateTime.Now.Year;
@@ -70,7 +70,7 @@ namespace WorkSchedule.Application.Services.RequestService
         }
 
         public async Task<IEnumerable<Request>> GetAllRequestsForUser(Guid userId) {
-            var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId.ToString(), request => request.OrderBy(r => r.Date), "User");
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId, request => request.OrderBy(r => r.Date), "User");
             return requests;
         }
 
@@ -86,7 +86,7 @@ namespace WorkSchedule.Application.Services.RequestService
             return request;
         }
 
-        private async Task<bool> CheckRequest(string userId, DateTime requestDate, RequestType type)
+        private async Task<bool> CheckRequest(Guid userId, DateTime requestDate, RequestType type)
         {
             var request = (await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId && request.Date == requestDate)).Any();
             var isHoliday = await IsHoliday(requestDate);

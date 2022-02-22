@@ -52,7 +52,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             return Unit.Value;
         }
 
-        private async Task UpdateSummaries(string id, string name)
+        private async Task UpdateSummaries(Guid id, string name)
         {
             var summaries = await _uow.SummaryRepository.Get(summary => summary.UserId == id);
             foreach (var summary in summaries)

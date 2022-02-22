@@ -10,16 +10,14 @@ namespace WorkSchedule.Application.Services.ScheduleService
 {
     public class ScheduleService : IScheduleService
     {
-        private readonly IMapper _mapper;
         private readonly Random _random;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
 
 
         #region Constructor
-        public ScheduleService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
+        public ScheduleService(IUnitOfWork unitOfWork, IFileService fileService)
         {
-            _mapper = mapper;
             _random = new Random();
             _unitOfWork = unitOfWork;
             _fileService = fileService;

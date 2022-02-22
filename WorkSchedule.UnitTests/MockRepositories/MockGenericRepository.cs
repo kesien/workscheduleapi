@@ -9,7 +9,7 @@ using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.UnitTests.MockRepositories
 {
-    public class MockGenericRepository<TEntity> where TEntity : BaseEntity
+    public class MockGenericRepository<TEntity> where TEntity : class, IBaseEntity
     {
         public List<TEntity> Entities { get; set; }
         public MockGenericRepository(List<TEntity> entities)

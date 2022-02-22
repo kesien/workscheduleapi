@@ -80,7 +80,7 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Requests
 
         private List<Request> GenerateEntities()
         {
-            var user = new User { Id = "b0844c05-e80b-442e-b488-25470ee6c970", Name = "test", UserName = "test" };
+            var user = new User { Id = Guid.Parse("b0844c05-e80b-442e-b488-25470ee6c970"), Name = "test", UserName = "test" };
             var entities = new List<Request>
             {
                 new Request

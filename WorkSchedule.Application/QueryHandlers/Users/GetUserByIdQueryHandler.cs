@@ -31,7 +31,7 @@ namespace WorkSchedule.Application.QueryHandlers.Users
             var user = await _userManager.FindByIdAsync(request.Id);
             if (user is null || (request.Id != request.RequesterId && !requesterRoles.Contains("Administrator")))
             {
-                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to access this data!" };
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to access this data!" } };
             }
             return _mapper.Map<UserToListDto>(user);
         }

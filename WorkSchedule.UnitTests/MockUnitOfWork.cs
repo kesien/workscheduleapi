@@ -8,7 +8,9 @@ namespace WorkSchedule.UnitTests
     {
         public static Mock<IUnitOfWork> GetUnitOfWorkMock()
         {
-            return new Mock<IUnitOfWork>();
+            var mock = new Mock<IUnitOfWork>();
+            mock.Setup(r => r.Save()).Verifiable();
+            return mock;
         }
     }
 }

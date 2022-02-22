@@ -1,8 +1,9 @@
 namespace WorkSchedule.Application.Persistency.Entities
 {
-    public class Summary : BaseEntity
+    public class Summary : IBaseEntity
     {
-        public string UserId { get; set; }
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public int Morning { get; set; }
         public int Forenoon { get; set; }
