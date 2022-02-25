@@ -84,6 +84,7 @@ namespace WorkScheduleMaker.Controllers
                 BadRequest();
             }
             var scheduleDto = _mapper.Map<ScheduleDto>(result);
+            scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();
             await _emailService.SendScheduleModifiedEmail(userId, daysToUpdate[0].Date.Year, daysToUpdate[0].Date.Month);
             return Ok(scheduleDto);
         }
