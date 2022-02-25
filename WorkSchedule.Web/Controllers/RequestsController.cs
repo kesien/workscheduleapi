@@ -33,6 +33,13 @@ namespace Controllers
             return Ok(result);
         }
 
+        [HttpGet("years/{userId}")]
+        public async Task<IActionResult> GetAllRequestYearsForUser(Guid userId)
+        {
+            var years = await _mediator.Send(new GetAllRequestYearsForUserQuery() { UserId = userId });
+            return Ok(years);
+        }
+
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAllRequestsForUser(Guid userId)
         {

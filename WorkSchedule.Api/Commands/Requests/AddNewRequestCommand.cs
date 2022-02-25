@@ -7,8 +7,19 @@ namespace WorkSchedule.Api.Commands.Requests
 {
     public class AddNewRequestCommand : IRequest<RequestDto>
     {
+        private DateTime _date;
         public Guid UserId { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Date 
+        { 
+            get
+            {
+                return _date;
+            }
+            set
+            {
+                _date = DateTime.Parse(value.ToString());
+            }
+        }
         public RequestType Type { get; set; }
     }
 

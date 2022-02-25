@@ -3,7 +3,7 @@ using WorkSchedule.Application.Constants;
 
 namespace WorkSchedule.Application.Persistency.Entities
 {
-    public class User : IdentityUser, IBaseEntity
+    public class User : IdentityUser<Guid>, IBaseEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

@@ -31,4 +31,3 @@ services:
 networks:
   workscheduleapi:
     name: workscheduleapi
-    driver: host

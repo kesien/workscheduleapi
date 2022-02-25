@@ -49,7 +49,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDatabaseConnection(builder.Configuration, IsDevelopment);
-builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;
@@ -87,6 +87,8 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<ApplicationDbContext>();
     context.Database.Migrate();
     var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<Role>>();
+    //UserSeed.SeedRoles(roleManager);
     UserSeed.SeedUsers(userManager);
     HolidaySeed.SeedHolidays(context);
 }

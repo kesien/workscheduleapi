@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Migrations
+namespace WorkSchedule.Application.Migrations
 {
     public partial class Initial : Migration
     {
@@ -25,29 +25,29 @@ namespace Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IdentityRole",
+                name: "IdentityUserRole<Guid>",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IdentityUserRole<Guid>", x => new { x.UserId, x.RoleId });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
                     NormalizedName = table.Column<string>(type: "text", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdentityRole", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "IdentityUserRole<string>",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IdentityUserRole<string>", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +69,7 @@ namespace Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: true),
@@ -118,7 +118,7 @@ namespace Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Morning = table.Column<int>(type: "integer", nullable: false),
                     Forenoon = table.Column<int>(type: "integer", nullable: false),
@@ -137,13 +137,33 @@ namespace Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WordFile",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: false),
+                    MonthlyScheduleId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WordFile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WordFile_Schedules_MonthlyScheduleId",
+                        column: x => x.MonthlyScheduleId,
+                        principalTable: "Schedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Requests",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -152,7 +172,8 @@ namespace Migrations
                         name: "FK_Requests_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -160,7 +181,7 @@ namespace Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsRequest = table.Column<bool>(type: "boolean", nullable: false),
                     DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -186,7 +207,7 @@ namespace Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -211,7 +232,7 @@ namespace Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsRequest = table.Column<bool>(type: "boolean", nullable: false),
                     DayId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -233,12 +254,12 @@ namespace Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "IdentityRole",
+                table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "2c47da92-98ea-46b7-aed4-bc7b0441e5e6", "15ebd0f0-d64a-4d71-a8ba-53c5f68fb1cd", "User", "USER" },
-                    { "8ced8ec3-e8c7-4e86-ae96-25cb8a456bcf", "16770340-c4d9-45f2-bf5e-e2af4a747120", "Administrator", "ADMINISTRATOR" }
+                    { new Guid("1da58f4d-44e9-4460-b4b9-3877481affb1"), "10361b9d-4433-4b82-8fe7-f28f52b4840e", "Administrator", "ADMINISTRATOR" },
+                    { new Guid("ffc59f07-0034-4f83-b673-f21da9179c9d"), "601f95c4-be5d-41cc-830e-31fe04844d56", "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -285,6 +306,12 @@ namespace Migrations
                 name: "IX_Summaries_MonthlyScheduleId",
                 table: "Summaries",
                 column: "MonthlyScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WordFile_MonthlyScheduleId",
+                table: "WordFile",
+                column: "MonthlyScheduleId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -299,10 +326,7 @@ namespace Migrations
                 name: "HolidaySchedules");
 
             migrationBuilder.DropTable(
-                name: "IdentityRole");
-
-            migrationBuilder.DropTable(
-                name: "IdentityUserRole<string>");
+                name: "IdentityUserRole<Guid>");
 
             migrationBuilder.DropTable(
                 name: "MorningSchedules");
@@ -311,7 +335,13 @@ namespace Migrations
                 name: "Requests");
 
             migrationBuilder.DropTable(
+                name: "Roles");
+
+            migrationBuilder.DropTable(
                 name: "Summaries");
+
+            migrationBuilder.DropTable(
+                name: "WordFile");
 
             migrationBuilder.DropTable(
                 name: "Days");

@@ -2,11 +2,13 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WorkSchedule.Application.Persistency;
 
 #nullable disable
 
-namespace Migrations
+namespace WorkSchedule.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -15,60 +17,25 @@ namespace Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "03edea94-0d85-4472-8e3d-d45d97420b41",
-                            ConcurrencyStamp = "f77d5aff-a8ba-4f89-8e40-5fb3881b4c55",
-                            Name = "User",
-                            NormalizedName = "USER"
-                        },
-                        new
-                        {
-                            Id = "75fc1c44-e82d-4d0c-9564-826bd060236a",
-                            ConcurrencyStamp = "b3837de0-0ef9-43a1-a90d-e0468f220e9e",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.ToTable("IdentityUserRole<string>");
+                    b.ToTable("IdentityUserRole<Guid>");
                 });
 
-            modelBuilder.Entity("Entities.Day", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Day", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,7 +60,7 @@ namespace Migrations
                     b.ToTable("Days");
                 });
 
-            modelBuilder.Entity("Entities.Forenoonschedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Forenoonschedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,9 +72,8 @@ namespace Migrations
                     b.Property<bool>("IsRequest")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -118,7 +84,7 @@ namespace Migrations
                     b.ToTable("ForenoonSchedules");
                 });
 
-            modelBuilder.Entity("Entities.Holiday", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Holiday", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -141,7 +107,7 @@ namespace Migrations
                     b.ToTable("Holidays");
                 });
 
-            modelBuilder.Entity("Entities.HolidaySchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.HolidaySchedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -150,9 +116,8 @@ namespace Migrations
                     b.Property<Guid>("DayId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -163,7 +128,7 @@ namespace Migrations
                     b.ToTable("HolidaySchedules");
                 });
 
-            modelBuilder.Entity("Entities.MonthlySchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.MonthlySchedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,7 +151,7 @@ namespace Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("Entities.MorningSchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.MorningSchedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -198,9 +163,8 @@ namespace Migrations
                     b.Property<bool>("IsRequest")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -211,7 +175,7 @@ namespace Migrations
                     b.ToTable("MorningSchedules");
                 });
 
-            modelBuilder.Entity("Entities.Request", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Request", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,8 +187,8 @@ namespace Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -233,7 +197,43 @@ namespace Migrations
                     b.ToTable("Requests");
                 });
 
-            modelBuilder.Entity("Entities.Summary", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffc59f07-0034-4f83-b673-f21da9179c9d"),
+                            ConcurrencyStamp = "601f95c4-be5d-41cc-830e-31fe04844d56",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        },
+                        new
+                        {
+                            Id = new Guid("1da58f4d-44e9-4460-b4b9-3877481affb1"),
+                            ConcurrencyStamp = "10361b9d-4433-4b82-8fe7-f28f52b4840e",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        });
+                });
+
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Summary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -255,9 +255,8 @@ namespace Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -266,10 +265,11 @@ namespace Migrations
                     b.ToTable("Summaries");
                 });
 
-            modelBuilder.Entity("Entities.User", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -325,7 +325,7 @@ namespace Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Entities.WordFile", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.WordFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -350,9 +350,9 @@ namespace Migrations
                     b.ToTable("WordFile");
                 });
 
-            modelBuilder.Entity("Entities.Day", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Day", b =>
                 {
-                    b.HasOne("Entities.MonthlySchedule", "MonthlySchedule")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.MonthlySchedule", "MonthlySchedule")
                         .WithMany("Days")
                         .HasForeignKey("MonthlyScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -361,15 +361,15 @@ namespace Migrations
                     b.Navigation("MonthlySchedule");
                 });
 
-            modelBuilder.Entity("Entities.Forenoonschedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Forenoonschedule", b =>
                 {
-                    b.HasOne("Entities.Day", "Day")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.Day", "Day")
                         .WithMany("UsersScheduledForForenoon")
                         .HasForeignKey("DayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entities.User", "User")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.User", "User")
                         .WithMany("ForenoonSchedules")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -380,15 +380,15 @@ namespace Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Entities.HolidaySchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.HolidaySchedule", b =>
                 {
-                    b.HasOne("Entities.Day", "Day")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.Day", "Day")
                         .WithMany("UsersOnHoliday")
                         .HasForeignKey("DayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entities.User", "User")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.User", "User")
                         .WithMany("HolidaySchedules")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -399,15 +399,15 @@ namespace Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Entities.MorningSchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.MorningSchedule", b =>
                 {
-                    b.HasOne("Entities.Day", "Day")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.Day", "Day")
                         .WithMany("UsersScheduledForMorning")
                         .HasForeignKey("DayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entities.User", "User")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.User", "User")
                         .WithMany("MorningSchedules")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -418,18 +418,20 @@ namespace Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Entities.Request", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Request", b =>
                 {
-                    b.HasOne("Entities.User", "User")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.User", "User")
                         .WithMany("Requests")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Entities.Summary", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Summary", b =>
                 {
-                    b.HasOne("Entities.MonthlySchedule", "MonthlySchedule")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.MonthlySchedule", "MonthlySchedule")
                         .WithMany("Summaries")
                         .HasForeignKey("MonthlyScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -438,18 +440,18 @@ namespace Migrations
                     b.Navigation("MonthlySchedule");
                 });
 
-            modelBuilder.Entity("Entities.WordFile", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.WordFile", b =>
                 {
-                    b.HasOne("Entities.MonthlySchedule", "MonthlySchedule")
+                    b.HasOne("WorkSchedule.Application.Persistency.Entities.MonthlySchedule", "MonthlySchedule")
                         .WithOne("WordFile")
-                        .HasForeignKey("Entities.WordFile", "MonthlyScheduleId")
+                        .HasForeignKey("WorkSchedule.Application.Persistency.Entities.WordFile", "MonthlyScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("MonthlySchedule");
                 });
 
-            modelBuilder.Entity("Entities.Day", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.Day", b =>
                 {
                     b.Navigation("UsersOnHoliday");
 
@@ -458,7 +460,7 @@ namespace Migrations
                     b.Navigation("UsersScheduledForMorning");
                 });
 
-            modelBuilder.Entity("Entities.MonthlySchedule", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.MonthlySchedule", b =>
                 {
                     b.Navigation("Days");
 
@@ -467,7 +469,7 @@ namespace Migrations
                     b.Navigation("WordFile");
                 });
 
-            modelBuilder.Entity("Entities.User", b =>
+            modelBuilder.Entity("WorkSchedule.Application.Persistency.Entities.User", b =>
                 {
                     b.Navigation("ForenoonSchedules");
 
