@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkSchedule.Api.Commands.Holidays;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Holidays;
 
 namespace Controllers
@@ -25,18 +24,18 @@ namespace Controllers
             return Ok(holidays);
         }
 
+        [HttpGet("years")]
+        public async Task<IActionResult> GetAllYears()
+        {
+            var years = await _mediator.Send(new GetYearsForAllHolidaysQuery());
+            return Ok(years);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateNewHoliday([FromBody] AddNewHolidayCommand command)
         {
             var holiday = await _mediator.Send(command);
             return Ok(holiday);
-        }
-
-        [HttpGet("filter")]
-        public async Task<IActionResult> FilterByYearAndMonth([FromQuery] int year, [FromQuery] int month)
-        {
-            var holidays = await _mediator.Send(new GetHolidaysByYearAndMonthQuery() { Month = month, Year = year });
-            return Ok(holidays);
         }
 
         [HttpDelete]

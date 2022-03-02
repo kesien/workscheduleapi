@@ -6,7 +6,9 @@ namespace WorkSchedule.Api.Commands.Holidays
 {
     public class AddNewHolidayCommand : IRequest<HolidayDto>
     {
-        public DateTime Date { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
         public bool IsFix { get; set; }
     }
 
@@ -15,14 +17,19 @@ namespace WorkSchedule.Api.Commands.Holidays
         public AddNewHolidayCommandValidator()
         {
             RuleFor(c => c.IsFix).NotNull().WithMessage("{PropertyName} is required!");
-            RuleFor(c => c.Date)
-                .Must(BeAValidDate).WithMessage("{PropertyName} is required!")
-                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty!");
-        }
-
-        private bool BeAValidDate(DateTime date)
-        {
-            return !date.Equals(default(DateTime));
+            RuleFor(c => c.Year)
+                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty!")
+                .InclusiveBetween(int.MinValue, int.MaxValue);
+            RuleFor(c => c.Month)
+                .NotEmpty()
+                .InclusiveBetween(1, 12);
+            RuleFor(c => c.Day)
+                .NotEmpty();
+            RuleFor(c => c).Must(args =>
+            {
+                var maxDay = DateTime.DaysInMonth(args.Year, args.Month);
+                return maxDay >= args.Day;
+            });
         }
     }
 }

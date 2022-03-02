@@ -26,7 +26,7 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList() };
             }
-            var result = await _holidayService.Add(request.Date, request.IsFix);
+            var result = await _holidayService.Add(request.Year, request.Month, request.Day, request.IsFix);
             if (result is null)
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "There is already a holiday registered for this date!" } };

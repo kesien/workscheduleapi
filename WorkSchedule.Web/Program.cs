@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Data.Seeds;
 using WorkSchedule.Application.Extensions;
@@ -83,13 +81,17 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    var buildEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    var jsonFile = buildEnv == "Production" ? "appsettings.json" : $"appsettings.{buildEnv}.json";
+    var configBuilder = new ConfigurationBuilder().AddJsonFile(jsonFile);
+    IConfiguration config = configBuilder.Build();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
     context.Database.Migrate();
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<Role>>();
     //UserSeed.SeedRoles(roleManager);
-    UserSeed.SeedUsers(userManager);
+    UserSeed.SeedUsers(userManager, config);
     HolidaySeed.SeedHolidays(context);
 }
 app.Run();

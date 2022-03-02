@@ -30,12 +30,10 @@ namespace WorkSchedule.Api.Commands.Users
                 .EmailAddress();
             RuleFor(c => c.Password)
                 .MinimumLength(5)
-                .MinimumLength(30);
+                .MaximumLength(30);
             RuleFor(c => c.Name)
                 .MinimumLength(3)
                 .MaximumLength(80);
-            RuleFor(c => c.Role)
-                .IsInEnum();
         }
     }
 }

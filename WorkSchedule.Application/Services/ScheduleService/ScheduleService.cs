@@ -226,7 +226,6 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 _unitOfWork.SummaryRepository.Delete(summary);
             }
             schedule.Summaries = GenerateSummary(userSchedules);
-            _unitOfWork.Save();
             await UpdateWordFile(schedule.Year, schedule.Month, (int)Math.Ceiling(users.Count() / 2.0));
             return schedule;
         }
@@ -234,7 +233,17 @@ namespace WorkSchedule.Application.Services.ScheduleService
         private async Task UpdateWordFile(int year, int month, int max)
         {
             var schedule = await _unitOfWork.ScheduleRepository.GetByDate(year, month);
-            var newWordFile = await _fileService.GenerateWordDoc(schedule, max);
+            WordFile newWordFile = new();
+
+            try
+            {
+                newWordFile = await _fileService.GenerateWordDoc(schedule, max);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Couldn't create Word file! Changes are not saved!" } };
+            }
             if (schedule.WordFile is not null)
             {
                 await _fileService.DeleteFile(schedule.WordFile.FilePath);

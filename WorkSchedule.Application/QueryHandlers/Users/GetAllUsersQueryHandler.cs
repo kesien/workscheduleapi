@@ -22,7 +22,7 @@ namespace WorkSchedule.Application.QueryHandlers.Users
         }
         public async Task<List<UserToListDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            var users = await _uow.UserRepository.Get();
+            var users = await _uow.UserRepository.Get(orderBy: users => users.OrderBy(user => user.Name));
             return _mapper.Map<List<UserToListDto>>(users);
         }
     }

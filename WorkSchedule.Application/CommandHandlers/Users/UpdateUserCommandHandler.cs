@@ -46,7 +46,8 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             }
             if (requesterRoles.Contains("Administrator") && request.Role is not null)
             {
-                await _userManager.AddToRoleAsync(userToChange, request?.Role?.ToString().ToUpper());
+                userToChange.Role = (Constants.UserRole)request.Role;
+                await _userManager.AddToRoleAsync(userToChange, request.Role == Api.Constants.UserRole.ADMIN ? "ADMINISTRATOR" : "USER");
             }
             await _userManager.UpdateAsync(userToChange);
             return Unit.Value;

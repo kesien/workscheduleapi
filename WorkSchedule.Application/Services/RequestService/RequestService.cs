@@ -54,18 +54,23 @@ namespace WorkSchedule.Application.Services.RequestService
             return requests;
         }
 
-        public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month)
+        public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month, string type)
         {
-            if (year == 0) {
-                year = DateTime.Now.Year;
-            
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId);
+            if (year != 0) 
+            {
+                requests = requests.Where(request => request.Date.Year == year).ToList();
             }
-            Expression<Func<Request, bool>> filter = request => request.User.Id == userId && request.Date.Year == year && request.Date.Month == month;
-
-            if (month == 0) {
-                filter = request => request.User.Id == userId && request.Date.Year == year;
+            if (month != 0) 
+            {
+                requests = requests.Where(request => request.Date.Month == month).ToList();
             }
-            var requests = await _unitOfWork.RequestRepository.Get(filter, request => request.OrderBy(r =>r.Date), "User");
+            int requestType;
+            if (type != "all")
+            {
+                int.TryParse(type, out requestType);
+                requests = requests.Where(request => request.Type == (RequestType)requestType).ToList();
+            }
             return requests;
         }
 

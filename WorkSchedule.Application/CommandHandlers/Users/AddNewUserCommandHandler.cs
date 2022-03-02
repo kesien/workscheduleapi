@@ -31,12 +31,16 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Username already exists!" } };
             }
-            var newUser = new User() { UserName = request.Username, Name = request.Name };
+            var newUser = new User() { UserName = request.Username, Name = request.Name, Role = (Constants.UserRole)request.Role };
             newUser.PasswordHash = _userManager.PasswordHasher.HashPassword(newUser, request.Password);
-            var result = await _userManager.CreateAsync(newUser);
-            if (!result.Succeeded)
+            await _userManager.CreateAsync(newUser);
+            if (request.Role == Api.Constants.UserRole.ADMIN)
             {
-                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Couldn't save new user to database!" } };
+                await _userManager.AddToRoleAsync(newUser, "ADMINISTRATOR");
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(newUser, "USER");
             }
             return _mapper.Map<UserToListDto>(newUser);
         }

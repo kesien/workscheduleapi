@@ -14,7 +14,7 @@ namespace WorkSchedule.Application.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Year = table.Column<int>(type: "integer", nullable: true),
+                    Year = table.Column<int>(type: "integer", nullable: false),
                     Month = table.Column<int>(type: "integer", nullable: false),
                     Day = table.Column<int>(type: "integer", nullable: false),
                     IsFix = table.Column<bool>(type: "boolean", nullable: false)
@@ -258,8 +258,8 @@ namespace WorkSchedule.Application.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("1da58f4d-44e9-4460-b4b9-3877481affb1"), "10361b9d-4433-4b82-8fe7-f28f52b4840e", "Administrator", "ADMINISTRATOR" },
-                    { new Guid("ffc59f07-0034-4f83-b673-f21da9179c9d"), "601f95c4-be5d-41cc-830e-31fe04844d56", "User", "USER" }
+                    { new Guid("1da58f4d-44e9-4460-b4b9-3877481affb1"), "1c909ef3-a88e-4dc8-8ecb-50e92807ea81", "Administrator", "ADMINISTRATOR" },
+                    { new Guid("ffc59f07-0034-4f83-b673-f21da9179c9d"), "c59313f3-ea83-4ec3-bf06-bed71db3ecff", "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(
