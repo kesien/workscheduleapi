@@ -5,7 +5,7 @@ using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Users
 {
-    public class AddNewUserCommand : IRequest<UserToListDto>
+    public class AddNewUserCommand : IRequest<Unit>
     {
         public string Username { get; set; }
         public string Password { get; set; }

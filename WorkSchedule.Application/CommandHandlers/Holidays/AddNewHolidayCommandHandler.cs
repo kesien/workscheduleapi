@@ -7,18 +7,16 @@ using WorkSchedule.Application.Services.HolidayService;
 
 namespace WorkSchedule.Application.CommandHandlers.Holidays
 {
-    public class AddNewHolidayCommandHandler : IRequestHandler<AddNewHolidayCommand, HolidayDto>
+    public class AddNewHolidayCommandHandler : IRequestHandler<AddNewHolidayCommand, Unit>
     {
         private readonly IHolidayService _holidayService;
-        private readonly IMapper _mapper;
 
-        public AddNewHolidayCommandHandler(IHolidayService holidayService, IMapper mapper)
+        public AddNewHolidayCommandHandler(IHolidayService holidayService)
         {
             _holidayService = holidayService;
-            _mapper = mapper;
         }
 
-        public async Task<HolidayDto> Handle(AddNewHolidayCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddNewHolidayCommand request, CancellationToken cancellationToken)
         {
             var validator = new AddNewHolidayCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -31,7 +29,7 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "There is already a holiday registered for this date!" } };
             }
-            return _mapper.Map<HolidayDto>(result);
+            return Unit.Value;
         }
     }
 }

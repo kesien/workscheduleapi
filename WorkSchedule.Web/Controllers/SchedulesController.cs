@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
 using WorkSchedule.Api.Commands.Schedules;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Schedules;
+using WorkSchedule.Application.Hubs;
 
 namespace Controllers
 {
@@ -15,9 +15,11 @@ namespace Controllers
     public class SchedulesController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public SchedulesController(IMediator mediator)
+        private readonly IHubContext<ScheduleHub, IHubClient> _hubContext;
+        public SchedulesController(IMediator mediator, IHubContext<ScheduleHub, IHubClient> hubContext)
         {
             _mediator = mediator;
+            _hubContext = hubContext;
         }
 
         [HttpGet("{year}/{month}")]
@@ -31,8 +33,9 @@ namespace Controllers
         [HttpPost]
         public async Task<IActionResult> CreateSchedule([FromBody] AddNewScheduleCommand addNewScheduleCommand)
         {
-            var schedule = await _mediator.Send(addNewScheduleCommand);
-            return Ok(schedule);
+            await _mediator.Send(addNewScheduleCommand);
+            await _hubContext.Clients.All.ScheduleCreatedEvent();
+            return Ok();
         }
 
         [Authorize(Roles = "Administrator")]
@@ -40,6 +43,7 @@ namespace Controllers
         public async Task<IActionResult> DeleteSchedule([FromBody] DeleteScheduleCommand deleteCommand)
         {
             await _mediator.Send(deleteCommand);
+            await _hubContext.Clients.All.ScheduleDeletedEvent();
             return NoContent();
         }
 
@@ -47,8 +51,9 @@ namespace Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateSchedule([FromBody] UpdateScheduleCommand updateCommand)
         {
-            var schedule = await _mediator.Send(updateCommand);
-            return Ok(schedule);
+            await _mediator.Send(updateCommand);
+            await _hubContext.Clients.All.ScheduleUpdatedEvent();
+            return Ok();
         }
     }
 }

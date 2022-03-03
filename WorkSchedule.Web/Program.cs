@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Data.Seeds;
 using WorkSchedule.Application.Extensions;
+using WorkSchedule.Application.Hubs;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Web.Middlewares;
@@ -18,6 +19,14 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
+    builder
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials()
+    .WithOrigins("http://localhost:4200");
+}));
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -54,6 +63,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 });
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -61,23 +71,22 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
-    app.UseMiddleware<ExceptionMiddleware>();
-    //app.UseDeveloperExceptionPage();
-} else
-{
-    app.UseMiddleware<ExceptionMiddleware>();
+    app.UseDeveloperExceptionPage();
 }
-app.UseCors(options => {
-    options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-});
+app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<ScheduleHub>("/schedule");
+});
 
 using (var scope = app.Services.CreateScope())
 {
@@ -90,7 +99,6 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<Role>>();
-    //UserSeed.SeedRoles(roleManager);
     UserSeed.SeedUsers(userManager, config);
     HolidaySeed.SeedHolidays(context);
 }

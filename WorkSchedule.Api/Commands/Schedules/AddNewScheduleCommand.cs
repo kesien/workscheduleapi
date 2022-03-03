@@ -4,7 +4,7 @@ using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Schedules
 {
-    public class AddNewScheduleCommand : IRequest<ScheduleDto>
+    public class AddNewScheduleCommand : IRequest<Unit>
     {
         public string UserId { get; set; }
         public int Year { get; set; }

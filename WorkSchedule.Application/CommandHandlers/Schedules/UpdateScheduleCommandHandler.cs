@@ -8,20 +8,18 @@ using WorkSchedule.Application.Services.ScheduleService;
 
 namespace WorkSchedule.Application.CommandHandlers.Schedules
 {
-    public class UpdateScheduleCommandHandler : IRequestHandler<UpdateScheduleCommand, ScheduleDto>
+    public class UpdateScheduleCommandHandler : IRequestHandler<UpdateScheduleCommand, Unit>
     {
         private readonly IScheduleService _scheduleService;
         private readonly IEmailService _emailService;
-        private readonly IMapper _mapper;
 
-        public UpdateScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService, IMapper mapper)
+        public UpdateScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService)
         {
             _scheduleService = scheduleService;
             _emailService = emailService;
-            _mapper = mapper;
         }
 
-        public async Task<ScheduleDto> Handle(UpdateScheduleCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateScheduleCommand request, CancellationToken cancellationToken)
         {
             var validator = new UpdateScheduleCommandValidator();
             var validatorResult = await validator.ValidateAsync(request, cancellationToken);
@@ -36,7 +34,7 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't update schedule with Id: {request.Id}" } };
             }
             await _emailService.SendScheduleModifiedEmail(request.UserId.ToString(), request.Days[0].Date.Year, request.Days[0].Date.Month);
-            return _mapper.Map<ScheduleDto>(result);
+            return Unit.Value;
         }
     }
 }

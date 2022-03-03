@@ -1,27 +1,27 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using WorkSchedule.Api.Commands.Schedules;
 using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Exceptions;
+using WorkSchedule.Application.Hubs;
 using WorkSchedule.Application.Services.EmailService;
 using WorkSchedule.Application.Services.ScheduleService;
 
 namespace WorkSchedule.Application.CommandHandlers.Schedules
 {
-    public class AddNewScheduleCommandHandler : IRequestHandler<AddNewScheduleCommand, ScheduleDto>
+    public class AddNewScheduleCommandHandler : IRequestHandler<AddNewScheduleCommand, Unit>
     {
         private readonly IScheduleService _scheduleService;
         private readonly IEmailService _emailService;
-        private readonly IMapper _mapper;
 
-        public AddNewScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService, IMapper mapper)
+        public AddNewScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService)
         {
             _scheduleService = scheduleService;
             _emailService = emailService;
-            _mapper = mapper;
         }
 
-        public async Task<ScheduleDto> Handle(AddNewScheduleCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddNewScheduleCommand request, CancellationToken cancellationToken)
         {
             var validator = new AddNewScheduleCommandValidator();
             var validatorResult = await validator.ValidateAsync(request, cancellationToken);
@@ -40,10 +40,8 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't create schedule on date: {request.Year}-{request.Month}" } };
             }
-            var scheduleDto = _mapper.Map<ScheduleDto>(newSchedule);
-            scheduleDto.Days = scheduleDto.Days.OrderBy(day => day.Date).ToList();
             await _emailService.SendNewScheduleEmail(request.UserId, request.Year, request.Month);
-            return scheduleDto;
+            return Unit.Value;
         }
     }
 }

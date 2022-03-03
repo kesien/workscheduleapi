@@ -2,8 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Api.Queries.Holidays;
+using WorkSchedule.Application.Hubs;
 
 namespace Controllers
 {
@@ -13,9 +15,11 @@ namespace Controllers
     public class HolidaysController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public HolidaysController(IMediator mediator)
+        private readonly IHubContext<ScheduleHub, IHubClient> _hubContext;
+        public HolidaysController(IMediator mediator, IHubContext<ScheduleHub, IHubClient> hubContext)
         {
             _mediator = mediator;
+            _hubContext = hubContext;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllHolidays()
@@ -34,14 +38,16 @@ namespace Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNewHoliday([FromBody] AddNewHolidayCommand command)
         {
-            var holiday = await _mediator.Send(command);
-            return Ok(holiday);
+            await _mediator.Send(command);
+            await _hubContext.Clients.All.HolidayCreatedEvent();
+            return Ok();
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteHoliday([FromBody] DeleteHolidayCommand deleteCommand)
         {
             await _mediator.Send(deleteCommand);
+            await _hubContext.Clients.All.HolidayDeletedEvent();
             return NoContent();
         }
     }

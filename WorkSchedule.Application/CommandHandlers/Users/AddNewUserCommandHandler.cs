@@ -8,17 +8,15 @@ using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.CommandHandlers.Users
 {
-    public class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, UserToListDto>
+    public class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, Unit>
     {
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
-        public AddNewUserCommandHandler(IMapper mapper, UserManager<User> userManager)
+        public AddNewUserCommandHandler(UserManager<User> userManager)
         {
-            _mapper = mapper;
             _userManager = userManager;
         }
 
-        public async Task<UserToListDto> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
         {
             var validator = new AddNewUserCommandValidator();
             var validatorResult = await validator.ValidateAsync(request, cancellationToken);
@@ -42,7 +40,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             {
                 await _userManager.AddToRoleAsync(newUser, "USER");
             }
-            return _mapper.Map<UserToListDto>(newUser);
+            return Unit.Value;
         }
     }
 }

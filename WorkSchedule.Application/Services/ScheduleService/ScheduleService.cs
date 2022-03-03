@@ -14,7 +14,6 @@ namespace WorkSchedule.Application.Services.ScheduleService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
 
-
         #region Constructor
         public ScheduleService(IUnitOfWork unitOfWork, IFileService fileService)
         {

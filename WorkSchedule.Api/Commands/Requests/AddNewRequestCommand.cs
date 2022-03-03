@@ -5,7 +5,7 @@ using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Requests
 {
-    public class AddNewRequestCommand : IRequest<RequestDto>
+    public class AddNewRequestCommand : IRequest<Unit>
     {
         private DateTime _date;
         public Guid UserId { get; set; }
