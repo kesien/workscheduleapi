@@ -27,7 +27,8 @@ namespace WorkSchedule.Application.Services.FileService
                 var scheduleTable = document.Tables[0];
                 var summaryTable = document.Tables[1];
 
-                GenerateScheduleTable(schedule, scheduleTable, max);
+                //GenerateScheduleTableV2(schedule, scheduleTable, max);
+                GenerateScheduleTableV2(schedule, scheduleTable);
                 GenerateSummaryTable(schedule, summaryTable);
                 if (!Directory.Exists($"./SavedDocuments"))
                 {
@@ -54,7 +55,7 @@ namespace WorkSchedule.Application.Services.FileService
                 FilePath = $"SavedDocuments/{fileName}",
                 FileName = fileName
             };
-            DeleteAllFiles("./SavedDocuments");
+            //DeleteAllFiles("./SavedDocuments");
             return wordFile;
         }
 
@@ -86,6 +87,74 @@ namespace WorkSchedule.Application.Services.FileService
                     cell.Paragraphs[0].Alignment = Alignment.center;
                 }
             }
+        }
+
+        private Table GenerateScheduleTableV2(MonthlySchedule schedule, Table table) 
+        {
+            int rowCount = 0;
+            var days = schedule.Days.OrderBy(day => day.Date).ToList();
+            var dateRow = table.InsertRow();
+            var morningRow = table.InsertRow();
+            var forenoonRow = table.InsertRow();
+            morningRow.Cells[0] = InsertHeader(morningRow.Cells[0], "8:00-16:30");
+            forenoonRow.Cells[0] = InsertHeader(forenoonRow.Cells[0], "9:00-18:00");
+            for (int dayIndex = 0; dayIndex < schedule.Days.Count; dayIndex++)
+            {
+                var day = days[dayIndex];
+                
+                if (dayIndex == 0 && day.IsWeekend)
+                {
+                    continue;
+                }
+                if (day.Date.DayOfWeek == DayOfWeek.Monday)
+                {
+                    dateRow = table.InsertRow();
+                    morningRow = table.InsertRow();
+                    forenoonRow = table.InsertRow();
+                    morningRow.Cells[0] = InsertHeader(morningRow.Cells[0], "8:00-16:30");
+                    forenoonRow.Cells[0] = InsertHeader(forenoonRow.Cells[0], "9:00-18:00");
+                }
+
+                dateRow = InsertDate(dateRow, day);
+                if (day.IsWeekend || day.IsHoliday)
+                {
+                    continue;
+                }
+                var max = Math.Max(day.UsersScheduledForMorning.Count, day.UsersScheduledForForenoon.Count);
+                for (int i = 0; i < day.UsersScheduledForMorning.Count; i++)
+                {
+                    List<MorningSchedule> schedules = day.UsersScheduledForMorning.ToList();
+                    morningRow = InsertPersonV2(morningRow, day, schedules[i].User.Name, schedules[i].IsRequest);
+                }
+                for (int i = 0; i < day.UsersScheduledForForenoon.Count; i++)
+                {
+                    List<Forenoonschedule> schedules = day.UsersScheduledForForenoon.ToList();
+                    forenoonRow = InsertPersonV2(forenoonRow, day, schedules[i].User.Name, schedules[i].IsRequest);
+                }
+                if (day.UsersOnHoliday.Count > 0)
+                {
+                    List<string> names = day.UsersOnHoliday.Select(holiday => holiday.User.Name).ToList();
+                    int index = 0;
+                    while (day.UsersScheduledForMorning.Count + index < max)
+                    {
+                        morningRow = InsertPerson(morningRow, day, names[index], false, true);
+                        names.Remove(names[index]);
+                        index++;
+                    }
+                    if (names.Count > 0)
+                    {
+                        index = 0;
+                        while (day.UsersScheduledForForenoon.Count + index < max)
+                        {
+                            forenoonRow = InsertPerson(forenoonRow, day, names[index], false, true);
+                            index++;
+                        }
+                    }
+                }
+            }
+            table = DeleteUnusedParagraphs(table);
+            //table = SetBordersV2(table);
+            return table;
         }
 
         private void GenerateScheduleTable(MonthlySchedule schedule, Table table, int max)
@@ -211,6 +280,29 @@ namespace WorkSchedule.Application.Services.FileService
             return table;
         }
 
+        private Table SetBordersV2(Table table)
+        {
+            var thickBorder = new Border(BorderStyle.Tcbs_single, BorderSize.six, 0, Color.Black);
+            foreach (var row in table.Rows)
+            {
+                foreach (var cell in row.Cells)
+                {
+                    cell.SetBorder(TableCellBorderType.Top, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Left, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Bottom, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Right, thickBorder);
+                    foreach (var paragraph in cell.Paragraphs)
+                    {
+                        if (cell.Paragraphs.Count != 1)
+                        {
+                            paragraph.Border(new Border(BorderStyle.Tcbs_single, BorderSize.two, 0, Color.Black));
+                        }
+                    }
+                }
+            }
+            return table;
+        }
+
         private Row InsertDate(Row row, Day day)
         {
             var date = day.Date.ToString("dd.MM.yyyy");
@@ -284,6 +376,34 @@ namespace WorkSchedule.Application.Services.FileService
             return row;
         }
 
+        private Row InsertPersonV2(Row row, Day day, string name, bool isRequest, bool isHoliday = false)
+        {
+            Cell cell = null;
+            switch (day.Date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    cell = row.Cells[1];
+                    break;
+                case DayOfWeek.Tuesday:
+                    cell = row.Cells[2];
+                    break;
+                case DayOfWeek.Wednesday:
+                    cell = row.Cells[3];
+                    break;
+                case DayOfWeek.Thursday:
+                    cell = row.Cells[4];
+                    break;
+                case DayOfWeek.Friday:
+                    cell = row.Cells[5];
+                    break;
+            }
+            if (cell is not null)
+            {
+                AppendNameV2(cell, name, isRequest, isHoliday);
+            }
+            return row;
+        }
+
         private void AppendName(Paragraph paragraph, string name, bool isRequest, bool isHoliday)
         {
             if (!isHoliday)
@@ -300,6 +420,40 @@ namespace WorkSchedule.Application.Services.FileService
                 paragraph.Color(Color.FromArgb(1, 41, 134, 202));
             }
             paragraph.Alignment = Alignment.center;
+        }
+
+        private void AppendNameV2(Cell cell, string name, bool isRequest, bool isHoliday)
+        {
+            var paragraph = cell.InsertParagraph();
+            if (!isHoliday)
+            {
+                paragraph.Append(name).Bold().FontSize(10);
+            }
+            if (isRequest)
+            {
+                paragraph.Color(Color.FromArgb(1, 194, 12, 12));
+            }
+            if (isHoliday)
+            {
+                paragraph.Append($"{name} (ferien)").Bold().FontSize(10);
+                paragraph.Color(Color.FromArgb(1, 41, 134, 202));
+            }
+            paragraph.Alignment = Alignment.center;
+        }
+
+        private Table DeleteUnusedParagraphs(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                foreach (var cell in row.Cells)
+                {
+                    if (cell.Paragraphs.Count != 1)
+                    {
+                        cell.RemoveParagraph(cell.Paragraphs[0]);
+                    }
+                }
+            }
+            return table;
         }
     }
 }

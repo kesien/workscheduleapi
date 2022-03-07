@@ -72,10 +72,6 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseMiddleware<ExceptionMiddleware>();
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
 app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 

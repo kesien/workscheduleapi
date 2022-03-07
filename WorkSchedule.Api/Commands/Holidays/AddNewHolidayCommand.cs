@@ -16,9 +16,9 @@ namespace WorkSchedule.Api.Commands.Holidays
     {
         public AddNewHolidayCommandValidator()
         {
-            RuleFor(c => c.IsFix).NotNull().WithMessage("{PropertyName} is required!");
+            RuleFor(c => c.IsFix).NotNull();
             RuleFor(c => c.Year)
-                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty!")
+                .NotEmpty()
                 .InclusiveBetween(int.MinValue, int.MaxValue);
             RuleFor(c => c.Month)
                 .NotEmpty()
