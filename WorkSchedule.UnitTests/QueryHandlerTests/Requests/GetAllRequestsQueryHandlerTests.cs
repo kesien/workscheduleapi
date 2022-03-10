@@ -6,9 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Requests;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.QueryHandlers.Requests;
 using WorkSchedule.Application.Services.RequestService;
+using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;
 using WorkSchedule.UnitTests.MockRepositories;
 using Xunit;
@@ -19,17 +21,16 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Holidays
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
         private readonly IRequestService _requestService;
-        private readonly MockGenericRepository<Request> fileRepoMock;
 
         public GetAllRequestsQueryHandlerTests()
         {
-            var entities = GenerateEntities();
-            var uowMock = MockUnitOfWork.GetUnitOfWorkMock();
-            fileRepoMock = new MockGenericRepository<Request>(entities);
-            uowMock.Setup(r => r.RequestRepository).Returns(fileRepoMock.GetGenericRepository().Object);
-            _uow = uowMock.Object;
+            var dp = new DataProvider();
             _mapper = MappingHelper.GetMappings().CreateMapper();
+            _context = dp.GetContext();
+            dp.SeedData(_context);
+            _uow = new UnitOfWork(_context);
             _requestService = new RequestService(_uow);
         }
 
@@ -40,69 +41,20 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Holidays
             var handler = new GetAllRequestsQueryHandler(_requestService, _mapper);
             var requests = await handler.Handle(query, CancellationToken.None);
             requests.Should().NotBeNull();
-            requests.Count.Should().Be(3);
+            requests.Count.Should().Be(2);
             requests[0].Should().NotBeNull();
-            requests[0].UserId.ToString().Should().Be("b0844c05-e80b-442e-0000-25470ee6c970");
-            requests[0].Username.Should().Be("test");
-            requests[0].Id.Should().Be("7c1f48c0-97fe-4b54-9b4d-73cad8c34634");
-            requests[0].Date.Should().BeSameDateAs(DateTime.Parse("2022-01-02"));
+            requests[0].UserId.ToString().Should().Be("ce17f790-3a10-4f0e-b2cf-558f1da49d52");
+            requests[0].Username.Should().Be("test@test.com");
+            requests[0].Id.GetType().Should().Be(typeof(Guid));
+            requests[0].Date.Should().BeSameDateAs(DateTime.Parse("2022-03-24"));
             requests[0].Type.Should().Be(Api.Constants.RequestType.FORENOON);
 
             requests[1].Should().NotBeNull();
-            requests[1].UserId.ToString().Should().Be("b0844c05-e80b-442e-0000-25470ee6c970");
-            requests[1].Username.Should().Be("test");
-            requests[1].Id.Should().Be("7c1f48c0-97fe-4b54-9b4e-73cad8c34634");
-            requests[1].Date.Should().BeSameDateAs(DateTime.Parse("2022-01-03"));
+            requests[1].UserId.ToString().Should().Be("4ca02be1-5e30-41eb-989a-95160c433d43");
+            requests[1].Username.Should().Be("test4@test.com");
+            requests[1].Id.GetType().Should().Be(typeof(Guid));
+            requests[1].Date.Should().BeSameDateAs(DateTime.Parse("2022-03-10"));
             requests[1].Type.Should().Be(Api.Constants.RequestType.MORNING);
-
-            requests[2].Should().NotBeNull();
-            requests[2].UserId.ToString().Should().Be("b0844c05-e80b-442e-0001-25470ee6c970");
-            requests[2].Username.Should().Be("test2");
-            requests[2].Id.Should().Be("7c1f48c0-97fe-4b54-9b4f-73cad8c34634");
-            requests[2].Date.Should().BeSameDateAs(DateTime.Parse("2022-02-04"));
-            requests[2].Type.Should().Be(Api.Constants.RequestType.HOLIDAY);
-        }
-
-        [Fact]
-        public async Task GetAllRequestsQueryHandler_Should_ReturnEmptyListIfThereAreNoEntities()
-        {
-            fileRepoMock.Entities.Clear();
-            var query = new GetAllRequestsQuery();
-            var handler = new GetAllRequestsQueryHandler(_requestService, _mapper);
-            var requests = await handler.Handle(query, CancellationToken.None);
-            requests.Should().NotBeNull();
-            requests.Should().BeEmpty();
-        }
-
-        private List<Request> GenerateEntities()
-        {
-            var user = new User { Id = Guid.Parse("b0844c05-e80b-442e-0000-25470ee6c970"), Name = "test", UserName = "test" };
-            var user2 = new User { Id = Guid.Parse("b0844c05-e80b-442e-0001-25470ee6c970"), Name = "test2", UserName = "test2" };
-            var entities = new List<Request>
-            {
-                new Request
-                {
-                    Id = Guid.Parse("7c1f48c0-97fe-4b54-9b4d-73cad8c34634"),
-                    User = user,
-                    Date = DateTime.Parse("2022-01-02"),
-                    Type = Api.Constants.RequestType.FORENOON
-                },
-                new Request
-                {
-                    Id = Guid.Parse("7c1f48c0-97fe-4b54-9b4e-73cad8c34634"),
-                    User = user,
-                    Date = DateTime.Parse("2022-01-03"),
-                    Type = Api.Constants.RequestType.MORNING
-                },
-                new Request
-                {
-                    Id = Guid.Parse("7c1f48c0-97fe-4b54-9b4f-73cad8c34634"),
-                    User = user2,
-                    Date = DateTime.Parse("2022-02-04"),
-                    Type = Api.Constants.RequestType.HOLIDAY
-                }
-            };
-            return entities;
         }
     }
 }
