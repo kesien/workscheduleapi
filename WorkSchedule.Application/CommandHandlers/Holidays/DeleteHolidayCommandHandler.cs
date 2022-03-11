@@ -23,8 +23,11 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = validatorResult.Errors.Select(e => e.ErrorMessage).ToList() };
             }
             var holiday = await _uow.HolidayRepository.GetByID(request.Id);
-            _uow.HolidayRepository.Delete(holiday);
-            _uow.Save();
+            if (holiday is not null)
+            {
+                _uow.HolidayRepository.Delete(holiday);
+                _uow.Save();
+            }
             return Unit.Value;
         }
     }

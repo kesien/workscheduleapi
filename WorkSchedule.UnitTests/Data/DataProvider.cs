@@ -48,7 +48,7 @@ namespace WorkSchedule.UnitTests.Data
         {
             return new List<Holiday>
             {
-                new Holiday { Id = Guid.NewGuid(), Day = 4, Month = 3, Year = 2022, IsFix = false },
+                new Holiday { Id = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d51"), Day = 4, Month = 3, Year = 2022, IsFix = false },
                 new Holiday { Id = Guid.NewGuid(), Day = 25, Month = 3, Year = 0, IsFix = true },
                 new Holiday { Id = Guid.NewGuid(), Day = 10, Month = 3, Year = 2022, IsFix = false },
             };

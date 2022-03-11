@@ -72,7 +72,13 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Schedules
             TestScheduleDays(schedule.Days);
         }
 
-        private void TestScheduleDays(List<Api.Dtos.DayDto> days)
+        [Fact]
+        public async Task InValidDateShould_Return_NewSchedule()
+        {
+
+        }
+
+            private void TestScheduleDays(List<Api.Dtos.DayDto> days)
         {
             for (int i = 0; i < days.Count; i++)
             {

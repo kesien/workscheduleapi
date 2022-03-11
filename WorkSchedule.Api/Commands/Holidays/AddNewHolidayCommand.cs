@@ -16,6 +16,7 @@ namespace WorkSchedule.Api.Commands.Holidays
     {
         public AddNewHolidayCommandValidator()
         {
+            this.CascadeMode = CascadeMode.Stop;
             RuleFor(c => c.IsFix).NotNull();
             RuleFor(c => c.Year)
                 .NotEmpty()
