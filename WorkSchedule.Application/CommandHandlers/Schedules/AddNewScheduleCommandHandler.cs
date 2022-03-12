@@ -43,5 +43,10 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
             await _emailService.SendNewScheduleEmail(request.UserId, request.Year, request.Month);
             return Unit.Value;
         }
+
+        public Task Handle(AddNewScheduleCommand command, object cancellation)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

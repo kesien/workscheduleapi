@@ -59,7 +59,7 @@ namespace WorkSchedule.UnitTests.Data
             return new List<Request>
             {
                 new Request { Id = Guid.NewGuid(), Date = DateTime.Parse("2022-03-24"), Type = Api.Constants.RequestType.FORENOON, User = _users.First()},
-                new Request { Id = Guid.NewGuid(), Date = DateTime.Parse("2022-03-10"), Type = Api.Constants.RequestType.MORNING, User = _users.Last()},
+                new Request { Id = Guid.Parse("ce17f790-3a10-4f0e-0000-558f1da49d51"), Date = DateTime.Parse("2022-03-10"), Type = Api.Constants.RequestType.MORNING, User = _users.Last()},
             };
         }
     }

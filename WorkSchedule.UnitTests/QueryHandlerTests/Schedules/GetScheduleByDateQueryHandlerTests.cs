@@ -78,7 +78,7 @@ namespace WorkSchedule.UnitTests.QueryHandlerTests.Schedules
 
         }
 
-            private void TestScheduleDays(List<Api.Dtos.DayDto> days)
+        private void TestScheduleDays(List<Api.Dtos.DayDto> days)
         {
             for (int i = 0; i < days.Count; i++)
             {
