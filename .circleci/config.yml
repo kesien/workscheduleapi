@@ -26,6 +26,8 @@ jobs:
       - run:
           name: "Run Application Tests"
           command: dotnet test -v n
+    store_test_results:
+      path: test-results
   build:
     description: Build application with Release configuration
     working_directory: /temp
