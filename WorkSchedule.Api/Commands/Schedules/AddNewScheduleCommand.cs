@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Schedules
 {

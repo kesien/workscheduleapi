@@ -53,7 +53,7 @@ namespace WorkSchedule.Application.Services.EmailService
             var users = _userManager.Users.ToList();
             return users.Select(user => new Dictionary<string, string>()
             {
-                { "Email", user.UserName }, 
+                { "Email", user.UserName },
                 { "Name", user.Name }
             }).ToList();
         }

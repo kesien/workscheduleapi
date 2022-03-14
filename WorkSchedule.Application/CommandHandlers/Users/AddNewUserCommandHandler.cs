@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using WorkSchedule.Api.Commands.Users;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
 

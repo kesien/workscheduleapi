@@ -9,6 +9,6 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public Task<MonthlySchedule> GetSchedule(int year, int month);
         public Task<bool> CheckSchedule(int year, int month);
         public Task<MonthlySchedule> UpdateSchedule(object id, List<DayDto> dayDtos);
-        public Task<bool> DeleteSchedule(object id);
+        public Task<MonthlySchedule> DeleteSchedule(object id);
     }
 }

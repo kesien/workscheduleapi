@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Requests;
@@ -37,11 +35,11 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         [Fact]
         public async Task ValidRequest_Should_BeAdded()
         {
-            var command = new AddNewRequestCommand 
-            { 
-                Date = DateTime.Parse("2022-04-04"), 
-                Type = Api.Constants.RequestType.MORNING, 
-                UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52") 
+            var command = new AddNewRequestCommand
+            {
+                Date = DateTime.Parse("2022-04-04"),
+                Type = Api.Constants.RequestType.MORNING,
+                UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
             var commandHandler = new AddNewRequestCommandHandler(_requestService);
 

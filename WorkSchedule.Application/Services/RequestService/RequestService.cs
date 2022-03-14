@@ -1,8 +1,6 @@
-using System.Linq.Expressions;
-using AutoMapper;
+using WorkSchedule.Api.Constants;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency.Entities;
-using WorkSchedule.Api.Constants;
 
 namespace WorkSchedule.Application.Services.RequestService
 {
@@ -33,7 +31,7 @@ namespace WorkSchedule.Application.Services.RequestService
         public async Task<bool> DeleteRequest(object id)
         {
             var request = await _unitOfWork.RequestRepository.GetByID(id);
-            if (request is null) 
+            if (request is null)
             {
                 return false;
             }
@@ -57,11 +55,11 @@ namespace WorkSchedule.Application.Services.RequestService
         public async Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month, string type)
         {
             var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId);
-            if (year != 0) 
+            if (year != 0)
             {
                 requests = requests.Where(request => request.Date.Year == year).ToList();
             }
-            if (month != 0) 
+            if (month != 0)
             {
                 requests = requests.Where(request => request.Date.Month == month).ToList();
             }
@@ -74,7 +72,8 @@ namespace WorkSchedule.Application.Services.RequestService
             return requests;
         }
 
-        public async Task<IEnumerable<Request>> GetAllRequestsForUser(Guid userId) {
+        public async Task<IEnumerable<Request>> GetAllRequestsForUser(Guid userId)
+        {
             var requests = await _unitOfWork.RequestRepository.Get(request => request.User.Id == userId, request => request.OrderBy(r => r.Date), "User");
             return requests;
         }
@@ -110,7 +109,7 @@ namespace WorkSchedule.Application.Services.RequestService
             var month = date.Month;
             var day = date.Day;
             var year = date.Year;
-            var isHoliday = (await _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) && 
+            var isHoliday = (await _unitOfWork.HolidayRepository.Get(holiday => (holiday.Year == year || holiday.IsFix) &&
                 holiday.Month == month && holiday.Day == day)).Any();
             return isHoliday;
         }

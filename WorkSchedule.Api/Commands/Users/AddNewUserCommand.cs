@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using WorkSchedule.Api.Constants;
-using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Users
 {

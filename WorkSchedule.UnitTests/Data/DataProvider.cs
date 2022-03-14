@@ -32,7 +32,7 @@ namespace WorkSchedule.UnitTests.Data
             context.Requests.AddRange(_requests);
             context.SaveChanges();
         }
-                
+
         private List<User> GenerateUsers()
         {
             return new List<User>

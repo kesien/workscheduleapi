@@ -15,7 +15,7 @@ namespace WorkSchedule.Application.Services.HolidayService
 
         public async Task<Holiday>? Add(int year, int month, int day, bool isFix)
         {
-            var holidays = await Find(h => h.Day == day && h.Month ==month);
+            var holidays = await Find(h => h.Day == day && h.Month == month);
             if (holidays.Any() && isFix)
             {
                 return null;

@@ -1,18 +1,15 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Requests;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency;
-using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.QueryHandlers.Requests;
 using WorkSchedule.Application.Services.RequestService;
 using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;
-using WorkSchedule.UnitTests.MockRepositories;
 using Xunit;
 
 namespace WorkSchedule.UnitTests.QueryHandlerTests.Holidays

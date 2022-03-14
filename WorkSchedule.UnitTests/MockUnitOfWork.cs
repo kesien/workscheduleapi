@@ -1,6 +1,5 @@
 ﻿using Moq;
 using WorkSchedule.Application.Data;
-using WorkSchedule.Application.Persistency;
 
 namespace WorkSchedule.UnitTests
 {

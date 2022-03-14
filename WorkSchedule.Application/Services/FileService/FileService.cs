@@ -22,7 +22,7 @@ namespace WorkSchedule.Application.Services.FileService
             var id = Guid.NewGuid();
             var fileName = $"{id}.docx";
             var fullPath = Path.Combine("./SavedDocuments", fileName);
-            using(DocX document = DocX.Load(baseDocument))
+            using (DocX document = DocX.Load(baseDocument))
             {
                 var scheduleTable = document.Tables[0];
                 var summaryTable = document.Tables[1];
@@ -39,14 +39,7 @@ namespace WorkSchedule.Application.Services.FileService
                 }
                 document.Dispose();
             }
-            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(fullPath)))
-            {
-                var result = await _dropbox.UploadFile(fullPath, ms);
-                if (!result)
-                {
-                    return null;
-                }
-            }
+
             GC.Collect();
             var wordFile = new WordFile
             {
@@ -54,23 +47,8 @@ namespace WorkSchedule.Application.Services.FileService
                 FilePath = $"SavedDocuments/{fileName}",
                 FileName = fileName
             };
-            DeleteAllFiles("./SavedDocuments");
             return wordFile;
         }
-
-        public async Task DeleteFile(string path)
-        {
-            await _dropbox.DeleteFile($"/{path}");
-        }
-
-        private void DeleteAllFiles(string path)
-        {
-            foreach (var file in Directory.EnumerateFiles(path))
-            {
-                File.Delete(file);
-            }
-        }
-
         private void GenerateSummaryTable(MonthlySchedule schedule, Table summaryTable)
         {
             foreach (var summary in schedule.Summaries)
@@ -88,7 +66,7 @@ namespace WorkSchedule.Application.Services.FileService
             }
         }
 
-        private Table GenerateScheduleTable(MonthlySchedule schedule, Table table) 
+        private Table GenerateScheduleTable(MonthlySchedule schedule, Table table)
         {
             int rowCount = 0;
             var days = schedule.Days.OrderBy(day => day.Date).ToList();
@@ -100,7 +78,7 @@ namespace WorkSchedule.Application.Services.FileService
             for (int dayIndex = 0; dayIndex < schedule.Days.Count; dayIndex++)
             {
                 var day = days[dayIndex];
-                
+
                 if (dayIndex == 0 && day.IsWeekend)
                 {
                     continue;
@@ -201,7 +179,7 @@ namespace WorkSchedule.Application.Services.FileService
             cell.Paragraphs[0].Append(headerText).Bold().FontSize(10);
             return cell;
         }
-                
+
         private Table SetBorders(Table table)
         {
             var thickBorder = new Border(BorderStyle.Tcbs_single, BorderSize.six, 0, Color.Black);
@@ -262,7 +240,7 @@ namespace WorkSchedule.Application.Services.FileService
             }
             return baseDocument;
         }
-        
+
         private Row InsertPerson(Row row, Day day, string name, bool isRequest, bool isHoliday = false)
         {
             Cell cell = null;

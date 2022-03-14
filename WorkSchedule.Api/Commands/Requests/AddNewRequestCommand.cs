@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using WorkSchedule.Api.Constants;
-using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Requests
 {
@@ -9,8 +8,8 @@ namespace WorkSchedule.Api.Commands.Requests
     {
         private DateTime _date;
         public Guid UserId { get; set; }
-        public DateTime Date 
-        { 
+        public DateTime Date
+        {
             get
             {
                 return _date;

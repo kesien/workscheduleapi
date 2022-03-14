@@ -3,22 +3,16 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Schedules;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency;
-using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.QueryHandlers.Schedules;
 using WorkSchedule.Application.Services.FileService;
-using WorkSchedule.Application.Services.RequestService;
 using WorkSchedule.Application.Services.ScheduleService;
 using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;
-using WorkSchedule.UnitTests.MockRepositories;
-using WorkSchedule.UnitTests.MockServices;
 using Xunit;
 
 namespace WorkSchedule.UnitTests.QueryHandlerTests.Schedules

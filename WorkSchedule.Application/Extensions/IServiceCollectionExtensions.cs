@@ -29,7 +29,8 @@ namespace WorkSchedule.Application.Extensions
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options => {
+                .AddJwtBearer(options =>
+                {
                     options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -45,14 +46,14 @@ namespace WorkSchedule.Application.Extensions
 
         public static IServiceCollection AddDatabaseConnection(this IServiceCollection services, IConfiguration configuration, bool isDevelopment)
         {
-            services.AddDbContext<ApplicationDbContext>(options => 
+            services.AddDbContext<ApplicationDbContext>(options =>
             {
-               if (isDevelopment) 
+                if (isDevelopment)
                 {
                     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
                     options.EnableSensitiveDataLogging();
                 }
-                else 
+                else
                 {
                     options.UseNpgsql(GetConnectionString());
                 }
@@ -62,6 +63,7 @@ namespace WorkSchedule.Application.Extensions
 
         public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services)
         {
+            services.AddScoped<ICustomPublisher, CustomPublisher>();
             services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             return services;

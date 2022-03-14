@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WorkSchedule.Application.Persistency.Entities
+﻿namespace WorkSchedule.Application.Persistency.Entities
 {
     public class Day : IBaseEntity
     {

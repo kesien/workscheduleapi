@@ -3,18 +3,19 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Schedules;
 using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.CommandHandlers.Schedules;
+using WorkSchedule.Application.Constants;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Events;
+using WorkSchedule.Application.Helpers;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
-using WorkSchedule.Application.Services.EmailService;
-using WorkSchedule.Application.Services.FileService;
 using WorkSchedule.Application.Services.ScheduleService;
 using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;
@@ -29,7 +30,6 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IScheduleService _scheduleService;
-        private IEmailService _emailService;
         public AddNewScheduleCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -43,23 +43,20 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
                 FilePath = "./",
             });
             _scheduleService = new ScheduleService(_uow, fileService.Object);
-            
         }
 
         [Fact]
         public async Task ValidSchedule_Should_BeAdded()
         {
-            var emailServiceMock = new Mock<IEmailService>();
-            emailServiceMock.Setup(m => m.SendNewScheduleEmail(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Verifiable();
-            _emailService = emailServiceMock.Object;
+            var customPublisherMock = new Mock<ICustomPublisher>();
+            customPublisherMock.Setup(x => x.Publish(It.IsAny<NewScheduleCreatedEvent>(), It.IsAny<PublishStrategy>(), It.IsAny<CancellationToken>())).Verifiable();
             var command = new AddNewScheduleCommand { Month = 4, Year = 2022, UserId = "ce17f790-3a10-4f0e-b2cf-558f1da49d52" };
-            var commandHandler = new AddNewScheduleCommandHandler(_scheduleService, _emailService);
+            var commandHandler = new AddNewScheduleCommandHandler(_scheduleService, customPublisherMock.Object);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var schedule = await _uow.ScheduleRepository.GetByDate(2022, 4);
 
             schedule.Should().NotBeNull();
-            emailServiceMock.Verify(m => m.SendNewScheduleEmail(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             schedule.Days.Count().Should().Be(30);
             schedule.Year.Should().Be(2022);
             schedule.Month.Should().Be(4);
@@ -72,6 +69,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
             schedule.WordFile.FilePath.Should().Be("./");
             schedule.WordFile.FileName.Should().Be("test.docx");
             schedule.WordFile.Id.GetType().Should().Be(typeof(Guid));
+            customPublisherMock.Verify(x => x.Publish(It.IsAny<NewScheduleCreatedEvent>(), It.IsAny<PublishStrategy>(), It.IsAny<CancellationToken>()), Times.Once);
             var scheduleDto = _mapper.Map<ScheduleDto>(schedule);
             TestScheduleDays(scheduleDto.Days);
         }
@@ -89,7 +87,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
                     day.UsersScheduledForMorning.Should().NotBeEmpty();
                     day.UsersScheduledForMorning.Count.Should().Be(2);
                 }
-                if (!day.IsHoliday && !day.IsWeekend) 
+                if (!day.IsHoliday && !day.IsWeekend)
                 {
                     day.UsersScheduledForForenoon.Should().NotBeEmpty();
                     day.UsersScheduledForForenoon.Count.Should().Be(2);

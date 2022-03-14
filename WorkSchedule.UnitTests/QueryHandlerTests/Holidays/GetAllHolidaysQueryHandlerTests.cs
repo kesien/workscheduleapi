@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
 using FluentAssertions;
-using Moq;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Holidays;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency;
-using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.QueryHandlers.Holidays;
 using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
-using WorkSchedule.Api.Queries.Holidays;
 using WorkSchedule.Api.Dtos;
+using WorkSchedule.Api.Queries.Holidays;
 using WorkSchedule.Application.Data;
 
 namespace WorkSchedule.Application.QueryHandlers.Holidays

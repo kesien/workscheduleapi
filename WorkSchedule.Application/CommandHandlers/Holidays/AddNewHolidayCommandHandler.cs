@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using WorkSchedule.Api.Commands.Holidays;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Services.HolidayService;
 

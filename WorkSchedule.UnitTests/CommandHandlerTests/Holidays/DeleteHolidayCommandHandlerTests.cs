@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using FluentAssertions;
+﻿using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Commands.Holidays;
@@ -13,7 +10,6 @@ using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Services.HolidayService;
 using WorkSchedule.UnitTests.Data;
-using WorkSchedule.UnitTests.Helpers;
 using Xunit;
 
 namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays

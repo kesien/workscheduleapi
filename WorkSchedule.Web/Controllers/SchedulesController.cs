@@ -23,7 +23,7 @@ namespace Controllers
         }
 
         [HttpGet("{year}/{month}")]
-        public async Task<IActionResult> GetSchedule(int year, int month) 
+        public async Task<IActionResult> GetSchedule(int year, int month)
         {
             var schedule = await _mediator.Send(new GetScheduleByDateQuery() { Month = month, Year = year });
             return Ok(schedule);
@@ -34,7 +34,6 @@ namespace Controllers
         public async Task<IActionResult> CreateSchedule([FromBody] AddNewScheduleCommand addNewScheduleCommand)
         {
             await _mediator.Send(addNewScheduleCommand);
-            await _hubContext.Clients.All.ScheduleCreatedEvent();
             return Ok();
         }
 
@@ -43,7 +42,6 @@ namespace Controllers
         public async Task<IActionResult> DeleteSchedule([FromBody] DeleteScheduleCommand deleteCommand)
         {
             await _mediator.Send(deleteCommand);
-            await _hubContext.Clients.All.ScheduleDeletedEvent();
             return NoContent();
         }
 

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WorkSchedule.Application.Constants;
-using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Data.Seeds
@@ -85,6 +83,6 @@ namespace WorkSchedule.Application.Data.Seeds
             }
         }
 
-        
+
     }
 }

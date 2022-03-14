@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using MediatR;
-using WorkSchedule.Api.Queries.Users;
-using WorkSchedule.Api.Dtos;
-using WorkSchedule.Application.Data;
-using WorkSchedule.Application.Persistency.Entities;
 using Microsoft.AspNetCore.Identity;
+using WorkSchedule.Api.Dtos;
+using WorkSchedule.Api.Queries.Users;
 using WorkSchedule.Application.Exceptions;
+using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.QueryHandlers.Users
 {

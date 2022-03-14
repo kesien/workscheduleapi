@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.HolidayService

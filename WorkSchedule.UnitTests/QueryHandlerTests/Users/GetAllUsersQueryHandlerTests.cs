@@ -1,16 +1,13 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Users;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.QueryHandlers.Users;
-using WorkSchedule.Application.Services.RequestService;
 using WorkSchedule.UnitTests.Data;
 using WorkSchedule.UnitTests.Helpers;
 using Xunit;
