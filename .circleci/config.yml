@@ -26,7 +26,7 @@ jobs:
       - run:
           name: "Run Application Tests"
           command: dotnet test -v n -l:trx;LogFileName=~/test-results/workschedule/workscheduleTests.xml
-      store_test_results:
+      - store_test_results:
         path: ~/test-results/workschedule/
   build:
     description: Build application with Release configuration
