@@ -25,9 +25,9 @@ jobs:
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: "Run Application Tests"
-          command: dotnet test -v n -l:trx;LogFileName=~/test-results/workschedule/workscheduleTests.xml
+          command: dotnet test -v n -l:trx;LogFileName=test-results/workschedule/workscheduleTests.xml
       - store_test_results:
-        path: ~/test-results/workschedule/
+        path: test-results/workschedule/
   build:
     description: Build application with Release configuration
     working_directory: /temp
