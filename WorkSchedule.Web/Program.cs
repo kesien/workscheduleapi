@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Data.Seeds;
 using WorkSchedule.Application.Extensions;
@@ -9,7 +10,8 @@ using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration));
 bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 // Add services to the container.
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -75,7 +77,7 @@ app.UseSwaggerUI();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
-
+app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
