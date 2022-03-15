@@ -25,7 +25,7 @@ jobs:
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: "Run Application Tests"
-          command: dotnet test --no-build --logger "trx"
+          command: dotnet test -v n --logger trx
       - run:
           name: test results
           when: always
