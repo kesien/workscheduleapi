@@ -13,6 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration));
 bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+//var logger = new LoggerConfiguration()
+//    .ReadFrom.Configuration(builder.Configuration)
+//    .CreateLogger();
+
+
+//builder.Logging.ClearProviders();
+//builder.Logging.AddSerilog()
+
 // Add services to the container.
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.ConfigureApplicationServices();

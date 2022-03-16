@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Serilog;
 using WorkSchedule.Application.Helpers;
 using WorkSchedule.Application.Persistency.Entities;
 
@@ -12,11 +13,13 @@ namespace WorkSchedule.Application.Services.EmailService
         private readonly SendGridClient _sendGridClient;
         private readonly EmailClientSettings _settings;
         private readonly UserManager<User> _userManager;
-        public EmailService(IOptions<EmailClientSettings> options, UserManager<User> userManager)
+        private readonly ILogger _logger;
+        public EmailService(IOptions<EmailClientSettings> options, UserManager<User> userManager, ILogger logger)
         {
             _settings = options.Value;
             _sendGridClient = new SendGridClient(_settings.ApiKey);
             _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<Response> SendNewScheduleEmail(string adminId, int year, int month)
@@ -40,6 +43,7 @@ namespace WorkSchedule.Application.Services.EmailService
             }
             var tos = users.Select(user => new EmailAddress(user.GetValueOrDefault("Email"), user.GetValueOrDefault("Name"))).ToList();
             var msg = MailHelper.CreateMultipleTemplateEmailsToMultipleRecipients(new EmailAddress(_settings.FromEmail, _settings.FromName), tos, templateId, data);
+            _logger.Information($"E-mail with template: {templateId} has been sent to {users.Count} users");
             return await _sendGridClient.SendEmailAsync(msg);
         }
 

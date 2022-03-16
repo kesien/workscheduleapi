@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Moq;
+using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -22,6 +24,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IRequestService _requestService;
+        private readonly ILogger _logger;
         public AddNewRequestCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -30,6 +33,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
             dp.SeedData(_context);
             _uow = new UnitOfWork(_context);
             _requestService = new RequestService(_uow);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
@@ -41,7 +45,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
-            var commandHandler = new AddNewRequestCommandHandler(_requestService);
+            var commandHandler = new AddNewRequestCommandHandler(_requestService, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var requests = await _uow.RequestRepository.Get(null, null, "User");
@@ -63,7 +67,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
-            var commandHandler = new AddNewRequestCommandHandler(_requestService);
+            var commandHandler = new AddNewRequestCommandHandler(_requestService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -82,7 +86,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
-            var commandHandler = new AddNewRequestCommandHandler(_requestService);
+            var commandHandler = new AddNewRequestCommandHandler(_requestService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -101,7 +105,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Empty
             };
-            var commandHandler = new AddNewRequestCommandHandler(_requestService);
+            var commandHandler = new AddNewRequestCommandHandler(_requestService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -120,7 +124,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
-            var commandHandler = new AddNewRequestCommandHandler(_requestService);
+            var commandHandler = new AddNewRequestCommandHandler(_requestService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()

@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using Moq;
+using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -19,6 +21,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         private readonly IUnitOfWork _uow;
         private readonly ApplicationDbContext _context;
         private readonly IHolidayService _holidayService;
+        private readonly ILogger _logger;
         public DeleteHolidayCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -26,13 +29,14 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
             dp.SeedData(_context);
             _uow = new UnitOfWork(_context);
             _holidayService = new HolidayService(_uow);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
         public async Task HolidayWithValidId_Should_BeDeleted()
         {
             var command = new DeleteHolidayCommand { Id = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d51") };
-            var commandHandler = new DeleteHolidayCommandHandler(_uow);
+            var commandHandler = new DeleteHolidayCommandHandler(_uow, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var holidays = await _uow.HolidayRepository.Get();
@@ -46,7 +50,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task HolidayWithInValidId_ShouldNot_BeDeleted()
         {
             var command = new DeleteHolidayCommand { Id = Guid.Parse("ce17f790-3a10-4f0e-b2cf-000000000000") };
-            var commandHandler = new DeleteHolidayCommandHandler(_uow);
+            var commandHandler = new DeleteHolidayCommandHandler(_uow, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var holidays = await _uow.HolidayRepository.Get();
@@ -58,7 +62,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task HolidayWithoutId_Should_ThrowError()
         {
             var command = new DeleteHolidayCommand();
-            var commandHandler = new DeleteHolidayCommandHandler(_uow);
+            var commandHandler = new DeleteHolidayCommandHandler(_uow, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>();

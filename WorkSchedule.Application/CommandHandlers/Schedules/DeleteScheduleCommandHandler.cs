@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Serilog;
 using WorkSchedule.Api.Commands.Schedules;
 using WorkSchedule.Application.Constants;
 using WorkSchedule.Application.Events;
@@ -12,11 +13,12 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
     {
         private readonly IScheduleService _scheduleService;
         private readonly ICustomPublisher _publisher;
-
-        public DeleteScheduleCommandHandler(IScheduleService scheduleService, ICustomPublisher publisher)
+        private readonly ILogger _logger;
+        public DeleteScheduleCommandHandler(IScheduleService scheduleService, ICustomPublisher publisher, ILogger logger)
         {
             _scheduleService = scheduleService;
             _publisher = publisher;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(DeleteScheduleCommand request, CancellationToken cancellationToken)
@@ -32,6 +34,7 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't delete schedule with id: {request.Id}" } };
             }
+            _logger.Information($"Schedule for: {result.Year}-{result.Month} with ID: {result.Id} has been deleted");
             await _publisher.Publish(new ScheduleDeletedEvent(result), PublishStrategy.ParallelNoWait, cancellationToken);
             return Unit.Value;
         }

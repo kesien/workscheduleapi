@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Serilog;
 using WorkSchedule.Api.Commands.Schedules;
 using WorkSchedule.Application.Constants;
 using WorkSchedule.Application.Events;
@@ -12,11 +13,12 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
     {
         private readonly IScheduleService _scheduleService;
         private readonly ICustomPublisher _publisher;
-
-        public AddNewScheduleCommandHandler(IScheduleService scheduleService, ICustomPublisher publisher)
+        private readonly ILogger _logger;
+        public AddNewScheduleCommandHandler(IScheduleService scheduleService, ICustomPublisher publisher, ILogger logger)
         {
             _scheduleService = scheduleService;
             _publisher = publisher;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(AddNewScheduleCommand request, CancellationToken cancellationToken)
@@ -39,6 +41,7 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't create schedule on date: {request.Year}-{request.Month}" } };
             }
 
+            _logger.Information($"Schedule for: {newSchedule.Year}-{newSchedule.Month} with ID: {newSchedule.Id} has been created!");
             await _publisher.Publish(new NewScheduleCreatedEvent { Schedule = newSchedule, UserId = request.UserId }, PublishStrategy.ParallelNoWait, CancellationToken.None);
             return Unit.Value;
         }

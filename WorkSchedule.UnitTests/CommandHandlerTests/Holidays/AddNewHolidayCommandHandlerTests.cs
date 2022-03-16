@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Moq;
+using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -22,6 +24,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IHolidayService _holidayService;
+        private readonly ILogger _logger;
         public AddNewHolidayCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -30,13 +33,14 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
             dp.SeedData(_context);
             _uow = new UnitOfWork(_context);
             _holidayService = new HolidayService(_uow);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
         public async Task ValidHoliday_Should_BeAdded()
         {
             var command = new AddNewHolidayCommand { Day = 1, Month = 1, IsFix = true, Year = 2022 };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var holidays = await _uow.HolidayRepository.Get();
@@ -54,7 +58,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task InValidMonth_Should_ThrowError()
         {
             var command = new AddNewHolidayCommand { Day = 1, Month = 100, IsFix = false, Year = 2022 };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -68,7 +72,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task InValidDay_Should_ThrowError()
         {
             var command = new AddNewHolidayCommand { Day = 32, Month = 1, IsFix = false, Year = 2022 };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -82,7 +86,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task PropertyDayMissing_Should_ThrowError()
         {
             var command = new AddNewHolidayCommand { Month = 1, IsFix = false, Year = 2022 };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -96,7 +100,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task PropertyMonthMissing_Should_ThrowError()
         {
             var command = new AddNewHolidayCommand { Day = 1, IsFix = false, Year = 2022 };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
@@ -110,7 +114,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Holidays
         public async Task PropertyYearMissing_Should_ThrowError()
         {
             var command = new AddNewHolidayCommand { Day = 1, Month = 1, IsFix = false };
-            var commandHandler = new AddNewHolidayCommandHandler(_holidayService);
+            var commandHandler = new AddNewHolidayCommandHandler(_holidayService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()

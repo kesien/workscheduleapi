@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using Moq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +31,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IScheduleService _scheduleService;
+        private readonly ILogger _logger;
         public AddNewScheduleCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -43,6 +45,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
                 FilePath = "./",
             });
             _scheduleService = new ScheduleService(_uow, fileService.Object);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
@@ -51,7 +54,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
             var customPublisherMock = new Mock<ICustomPublisher>();
             customPublisherMock.Setup(x => x.Publish(It.IsAny<NewScheduleCreatedEvent>(), It.IsAny<PublishStrategy>(), It.IsAny<CancellationToken>())).Verifiable();
             var command = new AddNewScheduleCommand { Month = 4, Year = 2022, UserId = "ce17f790-3a10-4f0e-b2cf-558f1da49d52" };
-            var commandHandler = new AddNewScheduleCommandHandler(_scheduleService, customPublisherMock.Object);
+            var commandHandler = new AddNewScheduleCommandHandler(_scheduleService, customPublisherMock.Object, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var schedule = await _uow.ScheduleRepository.GetByDate(2022, 4);

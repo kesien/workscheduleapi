@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Serilog;
 using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Exceptions;
@@ -8,10 +9,11 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
     public class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand, Unit>
     {
         private readonly IUnitOfWork _uow;
-
-        public DeleteHolidayCommandHandler(IUnitOfWork uow)
+        private readonly ILogger _logger;
+        public DeleteHolidayCommandHandler(IUnitOfWork uow, ILogger logger)
         {
             _uow = uow;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(DeleteHolidayCommand request, CancellationToken cancellationToken)
@@ -27,6 +29,7 @@ namespace WorkSchedule.Application.CommandHandlers.Holidays
             {
                 _uow.HolidayRepository.Delete(holiday);
                 _uow.Save();
+                _logger.Information($"Holiday with ID: {holiday.Id} has been deleted");
             }
             return Unit.Value;
         }

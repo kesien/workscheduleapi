@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
         private readonly IUnitOfWork _uow;
         private readonly ApplicationDbContext _context;
         private readonly IScheduleService _scheduleService;
+        private readonly ILogger _logger;
         public DeleteScheduleCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -36,6 +38,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
                 FilePath = "./",
             });
             _scheduleService = new ScheduleService(_uow, fileService.Object);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
@@ -47,7 +50,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
             var schedule = await _uow.ScheduleRepository.GetByDate(2022, 5);
             schedule.Should().NotBeNull();
             
-            var commandHandler = new DeleteScheduleCommandHandler(_scheduleService, customPublisherMock.Object);
+            var commandHandler = new DeleteScheduleCommandHandler(_scheduleService, customPublisherMock.Object, _logger);
             var command = new DeleteScheduleCommand { Id = schedule.Id };
 
 
@@ -63,7 +66,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Schedules
             var customPublisherMock = new Mock<ICustomPublisher>();
             customPublisherMock.Setup(x => x.Publish(It.IsAny<ScheduleDeletedEvent>(), It.IsAny<PublishStrategy>(), It.IsAny<CancellationToken>())).Verifiable();
 
-            var commandHandler = new DeleteScheduleCommandHandler(_scheduleService, customPublisherMock.Object);
+            var commandHandler = new DeleteScheduleCommandHandler(_scheduleService, customPublisherMock.Object, _logger);
             var command = new DeleteScheduleCommand { Id = Guid.Empty };
 
 

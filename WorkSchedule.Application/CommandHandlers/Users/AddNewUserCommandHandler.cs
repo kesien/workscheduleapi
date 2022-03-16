@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using WorkSchedule.Api.Commands.Users;
 using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
@@ -33,6 +33,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             var newUser = new User() { UserName = request.Username, Name = request.Name, Role = (Constants.UserRole)request.Role };
             newUser.PasswordHash = _userManager.PasswordHasher.HashPassword(newUser, request.Password);
             await _userManager.CreateAsync(newUser);
+            _logger.Information($"New user created with Id: {newUser.Id}");
             if (request.Role == Api.Constants.UserRole.ADMIN)
             {
                 await _userManager.AddToRoleAsync(newUser, "ADMINISTRATOR");

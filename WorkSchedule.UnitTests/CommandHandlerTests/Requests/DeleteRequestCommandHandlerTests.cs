@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Moq;
+using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -22,6 +24,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IRequestService _requestService;
+        private readonly ILogger _logger;
         public DeleteRequestCommandHandlerTests()
         {
             var dp = new DataProvider();
@@ -30,13 +33,14 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
             dp.SeedData(_context);
             _uow = new UnitOfWork(_context);
             _requestService = new RequestService(_uow);
+            _logger = new Mock<ILogger>().Object;
         }
 
         [Fact]
         public async Task ValidId_Should_BeDeleted()
         {
             var command = new DeleteRequestCommand { Id = Guid.Parse("ce17f790-3a10-4f0e-0000-558f1da49d51") };
-            var commandHandler = new DeleteRequestCommandHandler(_requestService);
+            var commandHandler = new DeleteRequestCommandHandler(_requestService, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var requests = await _uow.RequestRepository.Get();
@@ -49,7 +53,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         public async Task IdNotFound_ShouldNot_BeDeleted()
         {
             var command = new DeleteRequestCommand { Id = Guid.Parse("ce17f790-3a10-4f0e-1111-558f1da49d51") };
-            var commandHandler = new DeleteRequestCommandHandler(_requestService);
+            var commandHandler = new DeleteRequestCommandHandler(_requestService, _logger);
 
             await commandHandler.Handle(command, CancellationToken.None);
             var requests = await _uow.RequestRepository.Get();
@@ -63,7 +67,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         public async Task InValidId_Should_ShouldTrowError()
         {
             var command = new DeleteRequestCommand { Id = Guid.Empty };
-            var commandHandler = new DeleteRequestCommandHandler(_requestService);
+            var commandHandler = new DeleteRequestCommandHandler(_requestService, _logger);
 
             commandHandler.Awaiting(y => y.Handle(command, CancellationToken.None)).Should()
                 .ThrowAsync<BusinessException>()
