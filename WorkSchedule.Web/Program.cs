@@ -103,6 +103,7 @@ using (var scope = app.Services.CreateScope())
     IConfiguration config = configBuilder.Build();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<Role>>();
     UserSeed.SeedUsers(userManager, config);
