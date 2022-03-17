@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using WorkScheduleMaker.Data;
+using WorkSchedule.Application.Persistency;
+using WorkSchedule.Application.Persistency.Entities;
 
 #nullable disable
 
-namespace WorkScheduleMaker.Migrations
+namespace WorkSchedule.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20211210115016_AddedWordFiles")]

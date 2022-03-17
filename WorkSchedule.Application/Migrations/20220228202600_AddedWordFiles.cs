@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace WorkScheduleMaker.Migrations
+namespace WorkSchedule.Application.Migrations
 {
     public partial class AddedWordFiles : Migration
     {
