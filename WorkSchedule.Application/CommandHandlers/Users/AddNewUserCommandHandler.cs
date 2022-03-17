@@ -1,24 +1,23 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using WorkSchedule.Api.Commands.Users;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.CommandHandlers.Users
 {
-    public class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, UserToListDto>
+    public class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, Unit>
     {
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
-        public AddNewUserCommandHandler(IMapper mapper, UserManager<User> userManager)
+        private readonly ILogger _logger;
+        public AddNewUserCommandHandler(UserManager<User> userManager, ILogger logger)
         {
-            _mapper = mapper;
             _userManager = userManager;
+            _logger = logger;
         }
 
-        public async Task<UserToListDto> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
         {
             var validator = new AddNewUserCommandValidator();
             var validatorResult = await validator.ValidateAsync(request, cancellationToken);
@@ -31,14 +30,19 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Username already exists!" } };
             }
-            var newUser = new User() { UserName = request.Username, Name = request.Name };
+            var newUser = new User() { UserName = request.Username, Name = request.Name, Role = (Constants.UserRole)request.Role };
             newUser.PasswordHash = _userManager.PasswordHasher.HashPassword(newUser, request.Password);
-            var result = await _userManager.CreateAsync(newUser);
-            if (!result.Succeeded)
+            await _userManager.CreateAsync(newUser);
+            _logger.Information($"New user created with Id: {newUser.Id}");
+            if (request.Role == Api.Constants.UserRole.ADMIN)
             {
-                throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "Couldn't save new user to database!" } };
+                await _userManager.AddToRoleAsync(newUser, "ADMINISTRATOR");
             }
-            return _mapper.Map<UserToListDto>(newUser);
+            else
+            {
+                await _userManager.AddToRoleAsync(newUser, "USER");
+            }
+            return Unit.Value;
         }
     }
 }

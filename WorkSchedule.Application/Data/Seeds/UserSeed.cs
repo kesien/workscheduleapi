@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using WorkSchedule.Application.Constants;
-using WorkSchedule.Application.Persistency;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Data.Seeds
@@ -33,29 +32,50 @@ namespace WorkSchedule.Application.Data.Seeds
                 }
             }
         }
-        public static void SeedUsers(UserManager<User> userManager)
+        public static void SeedUsers(UserManager<User> userManager, IConfiguration config)
         {
             if (!userManager.Users.Any())
             {
+                string adminPassword = config["AdminSettings:Password"];
+                string adminUserName = config["AdminSettings:Username"];
+                string adminName = config["AdminSettings:Name"];
                 var password = "password";
+
+                // Add admin user
                 var users = new List<User>
                 {
                     new User
                     {
-                        UserName = "balazsnobik@gmail.com",
-                        Name = "Admin",
+                        UserName = adminUserName,
+                        Name = adminName,
                         Role = UserRole.ADMIN
                     }
                 };
+
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                {
+                    // Add test users
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        users.Add(new User
+                        {
+                            UserName = $"test{i}@test.com",
+                            Name = $"test{i}",
+                            Role = UserRole.USER
+                        });
+                    }
+                }
+
                 foreach (var user in users)
                 {
-                    userManager.CreateAsync(user, password).GetAwaiter().GetResult();
                     if (user.Role == UserRole.ADMIN)
                     {
+                        userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
                         userManager.AddToRoleAsync(user, "Administrator").GetAwaiter().GetResult();
                     }
                     else
                     {
+                        userManager.CreateAsync(user, password).GetAwaiter().GetResult();
                         userManager.AddToRoleAsync(user, "User").GetAwaiter().GetResult();
                     }
                 }
@@ -63,6 +83,6 @@ namespace WorkSchedule.Application.Data.Seeds
             }
         }
 
-        
+
     }
 }

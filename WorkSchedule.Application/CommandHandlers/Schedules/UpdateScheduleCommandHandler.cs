@@ -1,27 +1,25 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
+using Serilog;
 using WorkSchedule.Api.Commands.Schedules;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Services.EmailService;
 using WorkSchedule.Application.Services.ScheduleService;
 
 namespace WorkSchedule.Application.CommandHandlers.Schedules
 {
-    public class UpdateScheduleCommandHandler : IRequestHandler<UpdateScheduleCommand, ScheduleDto>
+    public class UpdateScheduleCommandHandler : IRequestHandler<UpdateScheduleCommand, Unit>
     {
         private readonly IScheduleService _scheduleService;
         private readonly IEmailService _emailService;
-        private readonly IMapper _mapper;
-
-        public UpdateScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService, IMapper mapper)
+        private readonly ILogger _logger;
+        public UpdateScheduleCommandHandler(IScheduleService scheduleService, IEmailService emailService, ILogger logger)
         {
             _scheduleService = scheduleService;
             _emailService = emailService;
-            _mapper = mapper;
+            _logger = logger;
         }
 
-        public async Task<ScheduleDto> Handle(UpdateScheduleCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateScheduleCommand request, CancellationToken cancellationToken)
         {
             var validator = new UpdateScheduleCommandValidator();
             var validatorResult = await validator.ValidateAsync(request, cancellationToken);
@@ -35,8 +33,9 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't update schedule with Id: {request.Id}" } };
             }
+            _logger.Information($"Schedule for: {result.Year}-{result.Month} with ID: {result.Id} has been updated!");
             await _emailService.SendScheduleModifiedEmail(request.UserId.ToString(), request.Days[0].Date.Year, request.Days[0].Date.Month);
-            return _mapper.Map<ScheduleDto>(result);
+            return Unit.Value;
         }
     }
 }

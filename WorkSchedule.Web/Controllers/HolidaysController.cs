@@ -2,9 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WorkSchedule.Api.Commands.Holidays;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Holidays;
+using WorkSchedule.Application.Hubs;
 
 namespace Controllers
 {
@@ -14,9 +15,11 @@ namespace Controllers
     public class HolidaysController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public HolidaysController(IMediator mediator)
+        private readonly IHubContext<ScheduleHub, IHubClient> _hubContext;
+        public HolidaysController(IMediator mediator, IHubContext<ScheduleHub, IHubClient> hubContext)
         {
             _mediator = mediator;
+            _hubContext = hubContext;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllHolidays()
@@ -25,24 +28,26 @@ namespace Controllers
             return Ok(holidays);
         }
 
+        [HttpGet("years")]
+        public async Task<IActionResult> GetAllYears()
+        {
+            var years = await _mediator.Send(new GetYearsForAllHolidaysQuery());
+            return Ok(years);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateNewHoliday([FromBody] AddNewHolidayCommand command)
         {
-            var holiday = await _mediator.Send(command);
-            return Ok(holiday);
-        }
-
-        [HttpGet("filter")]
-        public async Task<IActionResult> FilterByYearAndMonth([FromQuery] int year, [FromQuery] int month)
-        {
-            var holidays = await _mediator.Send(new GetHolidaysByYearAndMonthQuery() { Month = month, Year = year });
-            return Ok(holidays);
+            await _mediator.Send(command);
+            await _hubContext.Clients.All.HolidayCreatedEvent();
+            return Ok();
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteHoliday([FromBody] DeleteHolidayCommand deleteCommand)
         {
             await _mediator.Send(deleteCommand);
+            await _hubContext.Clients.All.HolidayDeletedEvent();
             return NoContent();
         }
     }

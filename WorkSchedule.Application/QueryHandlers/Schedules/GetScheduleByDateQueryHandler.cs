@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkSchedule.Api.Queries.Schedules;
 using WorkSchedule.Api.Dtos;
+using WorkSchedule.Api.Queries.Schedules;
 using WorkSchedule.Application.Services.ScheduleService;
 
 namespace WorkSchedule.Application.QueryHandlers.Schedules

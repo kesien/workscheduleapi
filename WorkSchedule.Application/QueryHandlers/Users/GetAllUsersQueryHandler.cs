@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WorkSchedule.Api.Dtos;
 using WorkSchedule.Api.Queries.Users;
 using WorkSchedule.Application.Data;
-using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Application.QueryHandlers.Users
 {
@@ -22,7 +17,7 @@ namespace WorkSchedule.Application.QueryHandlers.Users
         }
         public async Task<List<UserToListDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            var users = await _uow.UserRepository.Get();
+            var users = await _uow.UserRepository.Get(orderBy: users => users.OrderBy(user => user.Name));
             return _mapper.Map<List<UserToListDto>>(users);
         }
     }

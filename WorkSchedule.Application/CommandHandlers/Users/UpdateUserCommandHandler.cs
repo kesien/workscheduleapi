@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using WorkSchedule.Api.Commands.Users;
 using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Exceptions;
@@ -11,11 +12,12 @@ namespace WorkSchedule.Application.CommandHandlers.Users
     {
         private readonly UserManager<User> _userManager;
         private readonly IUnitOfWork _uow;
-
-        public UpdateUserCommandHandler(UserManager<User> userManager, IUnitOfWork uow)
+        private readonly ILogger _logger;
+        public UpdateUserCommandHandler(UserManager<User> userManager, IUnitOfWork uow, ILogger logger)
         {
             _userManager = userManager;
             _uow = uow;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -46,9 +48,11 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             }
             if (requesterRoles.Contains("Administrator") && request.Role is not null)
             {
-                await _userManager.AddToRoleAsync(userToChange, request?.Role?.ToString().ToUpper());
+                userToChange.Role = (Constants.UserRole)request.Role;
+                await _userManager.AddToRoleAsync(userToChange, request.Role == Api.Constants.UserRole.ADMIN ? "ADMINISTRATOR" : "USER");
             }
             await _userManager.UpdateAsync(userToChange);
+            _logger.Information($"User with ID: {userToChange.Id} has been updated");
             return Unit.Value;
         }
 

@@ -4,7 +4,7 @@ using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Schedules
 {
-    public class UpdateScheduleCommand : IRequest<ScheduleDto>
+    public class UpdateScheduleCommand : IRequest<Unit>
     {
         public List<DayDto> Days { get; set; }
         public Guid UserId { get; set; }
@@ -16,66 +16,66 @@ namespace WorkSchedule.Api.Commands.Schedules
         public UpdateScheduleCommandValidator()
         {
             RuleFor(c => c.UserId)
-                .NotNull().WithMessage("{PropertyName} is required!")
-                .NotEmpty().WithMessage("{PropertyName} is required!");
+                .NotNull()
+                .NotEmpty();
             RuleFor(c => c.Id)
-                .NotNull().WithMessage("{PropertyName} is required!")
-                .NotEmpty().WithMessage("{PropertyName} is required!");
+                .NotNull()
+                .NotEmpty();
             RuleFor(c => c.Days)
-                .NotNull().WithMessage("{PropertyName} is required!")
-                .NotEmpty().WithMessage("{PropertyName} is required!");
+                .NotNull()
+                .NotEmpty();
             RuleForEach(c => c.Days).ChildRules(days =>
             {
                 days.RuleFor(day => day.Date)
                     .NotNull()
                     .NotEmpty();
                 days.RuleFor(day => day.UsersScheduledForMorning)
-                    .NotNull().WithMessage("{PropertyName} is required!");
+                    .NotNull();
                 days.RuleFor(day => day.UsersScheduledForForenoon)
-                    .NotNull().WithMessage("{PropertyName} is required!");
+                    .NotNull();
                 days.RuleFor(day => day.UsersOnHoliday)
-                    .NotNull().WithMessage("{PropertyName} is required!");
+                    .NotNull();
                 days.RuleForEach(day => day.UsersScheduledForMorning).ChildRules(users =>
                 {
                     users.RuleFor(user => user.Id)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.Name)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.UserName)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.IsRequest)
-                        .NotNull().WithMessage("{PropertyName} is required!");
+                        .NotNull();
                 });
                 days.RuleForEach(day => day.UsersScheduledForForenoon).ChildRules(users =>
                 {
                     users.RuleFor(user => user.Id)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.Name)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.UserName)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.IsRequest)
-                        .NotNull().WithMessage("{PropertyName} is required!");
+                        .NotNull();
                 });
                 days.RuleForEach(day => day.UsersOnHoliday).ChildRules(users =>
                 {
                     users.RuleFor(user => user.Id)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.Name)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.UserName)
-                        .NotNull().WithMessage("{PropertyName} is required!")
-                        .NotEmpty().WithMessage("{PropertyName} is required!");
+                        .NotNull()
+                        .NotEmpty();
                     users.RuleFor(user => user.IsRequest)
-                        .NotNull().WithMessage("{PropertyName} is required!");
+                        .NotNull();
                 });
             });
         }

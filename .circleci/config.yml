@@ -25,7 +25,16 @@ jobs:
           key: dotnet-packages-v1-{{ checksum "WorkSchedule.Web/WorkSchedule.Web.csproj" }}
       - run:
           name: "Run Application Tests"
-          command: dotnet test -v n
+          command: dotnet test -v n --logger trx --results-directory tests/TestResults
+      - run:
+          name: test results
+          when: always
+          command: |
+              export PATH="$PATH:/root/.dotnet/tools"
+              dotnet tool install -g trx2junit
+              trx2junit tests/TestResults/*.trx
+      - store_test_results:
+          path: tests/TestResults
   build:
     description: Build application with Release configuration
     working_directory: /temp

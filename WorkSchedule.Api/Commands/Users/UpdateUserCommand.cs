@@ -29,13 +29,19 @@ namespace WorkSchedule.Api.Commands.Users
                 .MaximumLength(80)
                 .EmailAddress();
             RuleFor(c => c.Password)
-                .MinimumLength(5)
-                .MinimumLength(30);
+                .Must(BeValidIfPresent);
             RuleFor(c => c.Name)
                 .MinimumLength(3)
                 .MaximumLength(80);
-            RuleFor(c => c.Role)
-                .IsInEnum();
+        }
+
+        private bool BeValidIfPresent(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                return true;
+            }
+            return password.Length >= 5 && password.Length <= 30;
         }
     }
 }

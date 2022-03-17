@@ -18,10 +18,10 @@ namespace WorkSchedule.UnitTests.MockRepositories
         }
         public Mock<IRepository<TEntity>> GetGenericRepository()
         {
-            
+
             var mockRepo = new Mock<IRepository<TEntity>>();
-            mockRepo.Setup(r => r.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), 
-                    It.IsAny<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(), 
+            mockRepo.Setup(r => r.Get(It.IsAny<Expression<Func<TEntity, bool>>>(),
+                    It.IsAny<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(),
                     It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync((Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
             string include, bool noTracking) => Get(filter, orderBy, include, noTracking));
@@ -40,7 +40,7 @@ namespace WorkSchedule.UnitTests.MockRepositories
             return query.ToList();
         }
 
-        private List<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy, 
+        private List<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
             string include = "", bool noTracking = false)
         {
             IQueryable<TEntity> query = Entities.AsQueryable();

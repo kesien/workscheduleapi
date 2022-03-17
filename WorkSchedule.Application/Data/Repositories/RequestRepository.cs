@@ -15,11 +15,11 @@ namespace WorkSchedule.Application.Data.Repositories
         public IEnumerable<Request> GetByDate(int year, int month)
         {
             IQueryable<Request> query = _dbSet;
-                return query.Include(request => request.User)
-                        .AsNoTracking()
-                        .Where(request => request.Date.Year == year && request.Date.Month == month)
-                        .AsNoTracking()
-                        .ToList();
+            return query.Include(request => request.User)
+                    .AsNoTracking()
+                    .Where(request => request.Date.Year == year && request.Date.Month == month)
+                    .AsNoTracking()
+                    .ToList();
         }
     }
 }

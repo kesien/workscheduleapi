@@ -16,7 +16,7 @@ namespace WorkSchedule.Application.Data.Repositories
         {
             IQueryable<MonthlySchedule> query = _dbSet;
             return await query.Where(schedule => schedule.Year == year && schedule.Month == month)
-                        .Include(schedule => schedule.Days)
+                        .Include(schedule => schedule.Days.OrderBy(day => day.Date))
                         .ThenInclude(day => day.UsersScheduledForMorning)
                         .ThenInclude(morning => morning.User)
                         .Include(schedule => schedule.Days)

@@ -1,5 +1,4 @@
 using WorkSchedule.Api.Constants;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.RequestService
@@ -12,7 +11,7 @@ namespace WorkSchedule.Application.Services.RequestService
         public Task<IEnumerable<Request>> GetAllRequests();
         public Task<IEnumerable<Request>> GetAllRequestsForMonth(int year, int month);
         public Task<IEnumerable<Request>> GetAllRequestsForUser(Guid userId);
-        public Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month);
+        public Task<IEnumerable<Request>> GetAllRequestsForUserByDate(Guid userId, int year, int month, string type);
         public Task<IEnumerable<Request>> GetAllRequestsForYear(int year);
     }
 }

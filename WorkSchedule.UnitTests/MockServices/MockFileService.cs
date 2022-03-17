@@ -13,7 +13,6 @@ namespace WorkSchedule.UnitTests.MockServices
             var mock = new Mock<IFileService>();
             mock.Setup(r => r.GenerateWordDoc(It.IsAny<MonthlySchedule>(), It.IsAny<int>()))
                 .ReturnsAsync(wordFile);
-            mock.Setup(r => r.DeleteFile(It.IsAny<string>())).Verifiable();
             return mock;
         }
     }

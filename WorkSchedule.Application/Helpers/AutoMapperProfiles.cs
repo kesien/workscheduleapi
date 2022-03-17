@@ -15,21 +15,21 @@ namespace WorkSchedule.Application.Helpers
             CreateMap<MorningSchedule, UserToRequestDto>()
                 .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
-                .ForMember(dest => dest.Name, opt => 
+                .ForMember(dest => dest.Name, opt =>
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
             CreateMap<Forenoonschedule, UserToRequestDto>()
                 .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
-                .ForMember(dest => dest.Name, opt => 
+                .ForMember(dest => dest.Name, opt =>
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
             CreateMap<HolidaySchedule, UserToRequestDto>()
                 .ForMember(dest => dest.Id, opt =>
                     opt.MapFrom(src => src.User.Id))
-                .ForMember(dest => dest.Name, opt => 
+                .ForMember(dest => dest.Name, opt =>
                     opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserName, opt =>
                     opt.MapFrom(src => src.User.UserName)).ReverseMap();
@@ -49,9 +49,9 @@ namespace WorkSchedule.Application.Helpers
                 .ReverseMap();
             CreateMap<RequestDto, Request>().ReverseMap();
             CreateMap<Request, RequestWithUserDto>()
-                .ForMember(dest => dest.Username, opt => 
+                .ForMember(dest => dest.Username, opt =>
                     opt.MapFrom(src => src.User.UserName))
-                .ForMember(dest => dest.UserId, opt => 
+                .ForMember(dest => dest.UserId, opt =>
                     opt.MapFrom(dest => dest.User.Id));
             CreateMap<Summary, SummaryDto>().ReverseMap();
             CreateMap<Holiday, HolidayDto>().ReverseMap();

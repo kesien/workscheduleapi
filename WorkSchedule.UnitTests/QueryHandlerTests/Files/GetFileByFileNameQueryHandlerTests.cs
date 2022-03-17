@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using FluentAssertions;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,13 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using WorkSchedule.Api.Queries.Files;
 using WorkSchedule.Application.Data;
+using WorkSchedule.Application.Exceptions;
 using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.QueryHandlers.Files;
 using WorkSchedule.Application.Services.DropboxService;
 using WorkSchedule.UnitTests.MockRepositories;
 using Xunit;
-using FluentAssertions;
-using WorkSchedule.Application.Exceptions;
 
 namespace WorkSchedule.UnitTests.QueryHandlerTests.Files
 {

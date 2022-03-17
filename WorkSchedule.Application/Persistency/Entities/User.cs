@@ -5,7 +5,6 @@ namespace WorkSchedule.Application.Persistency.Entities
 {
     public class User : IdentityUser<Guid>, IBaseEntity
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public ICollection<Request> Requests { get; set; }
         public ICollection<MorningSchedule> MorningSchedules { get; set; }

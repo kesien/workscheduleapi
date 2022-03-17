@@ -22,12 +22,12 @@ namespace WorkSchedule.Application.Services.FileService
             var id = Guid.NewGuid();
             var fileName = $"{id}.docx";
             var fullPath = Path.Combine("./SavedDocuments", fileName);
-            using(DocX document = DocX.Load(baseDocument))
+            using (DocX document = DocX.Load(baseDocument))
             {
                 var scheduleTable = document.Tables[0];
                 var summaryTable = document.Tables[1];
 
-                GenerateScheduleTable(schedule, scheduleTable, max);
+                GenerateScheduleTable(schedule, scheduleTable);
                 GenerateSummaryTable(schedule, summaryTable);
                 if (!Directory.Exists($"./SavedDocuments"))
                 {
@@ -39,14 +39,7 @@ namespace WorkSchedule.Application.Services.FileService
                 }
                 document.Dispose();
             }
-            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(fullPath)))
-            {
-                var result = await _dropbox.UploadFile(fullPath, ms);
-                if (!result)
-                {
-                    return null;
-                }
-            }
+
             GC.Collect();
             var wordFile = new WordFile
             {
@@ -54,23 +47,8 @@ namespace WorkSchedule.Application.Services.FileService
                 FilePath = $"SavedDocuments/{fileName}",
                 FileName = fileName
             };
-            DeleteAllFiles("./SavedDocuments");
             return wordFile;
         }
-
-        public async Task DeleteFile(string path)
-        {
-            await _dropbox.DeleteFile($"/{path}");
-        }
-
-        private void DeleteAllFiles(string path)
-        {
-            foreach (var file in Directory.EnumerateFiles(path))
-            {
-                File.Delete(file);
-            }
-        }
-
         private void GenerateSummaryTable(MonthlySchedule schedule, Table summaryTable)
         {
             foreach (var summary in schedule.Summaries)
@@ -88,60 +66,52 @@ namespace WorkSchedule.Application.Services.FileService
             }
         }
 
-        private void GenerateScheduleTable(MonthlySchedule schedule, Table table, int max)
+        private Table GenerateScheduleTable(MonthlySchedule schedule, Table table)
         {
             int rowCount = 0;
-            var days = schedule.Days.OrderBy(d => d.Date).ToList();
-
+            var days = schedule.Days.OrderBy(day => day.Date).ToList();
+            var dateRow = table.InsertRow();
+            var morningRow = table.InsertRow();
+            var forenoonRow = table.InsertRow();
+            morningRow.Cells[0] = InsertHeader(morningRow.Cells[0], "8:00-16:30");
+            forenoonRow.Cells[0] = InsertHeader(forenoonRow.Cells[0], "9:00-18:00");
             for (int dayIndex = 0; dayIndex < schedule.Days.Count; dayIndex++)
             {
                 var day = days[dayIndex];
-                if (dayIndex == 0 && day.IsWeekend) 
-                {
-                    continue;
-                }
-                if (dayIndex == 0 || day.Date.DayOfWeek == DayOfWeek.Monday)
-                {
-                    for (int i = 1; i <= max * 2; i++)
-                    {
-                        var row = table.InsertRow();
-                        rowCount++;
-                        if (i == 1)
-                        {
-                            row = table.InsertRow();
-                            rowCount++;
-                            row.Cells[0] = InsertHeader(row.Cells[0], "8:00-16:30");
-                        }
-                        if (i == ((max * 2) - max) + 1)
-                        {
-                            row.Cells[0] = InsertHeader(row.Cells[0], "9:30-18:00");
-                        }
-                    }
-                    if (max > 1) 
-                    {
-                        table.MergeCellsInColumn(0, rowCount - (max * 2 - 1), rowCount - max);
-                        table.MergeCellsInColumn(0, rowCount - (max - 1), rowCount);
-                    }
-                }
-                if (day.IsWeekend || day.IsHoliday)
-                {
-                    continue;
-                }
-                table.Rows[rowCount - max * 2] = InsertDate(table.Rows[rowCount - max * 2], day);
 
+                if (dayIndex == 0 && day.IsWeekend)
+                {
+                    continue;
+                }
+                if (day.Date.DayOfWeek == DayOfWeek.Monday)
+                {
+                    dateRow = table.InsertRow();
+                    morningRow = table.InsertRow();
+                    forenoonRow = table.InsertRow();
+                    morningRow.Cells[0] = InsertHeader(morningRow.Cells[0], "8:00-16:30");
+                    forenoonRow.Cells[0] = InsertHeader(forenoonRow.Cells[0], "9:00-18:00");
+                }
+
+                dateRow = InsertDate(dateRow, day);
+                if (day.IsWeekend)
+                {
+                    continue;
+                }
+                if (day.IsHoliday)
+                {
+                    morningRow = InsertHoliday(morningRow, day);
+                    forenoonRow = InsertHoliday(forenoonRow, day);
+                }
+                var max = Math.Max(day.UsersScheduledForMorning.Count, day.UsersScheduledForForenoon.Count);
                 for (int i = 0; i < day.UsersScheduledForMorning.Count; i++)
                 {
-                    var rowIndex = (rowCount - (max * 2 - 1)) + i;
-                    var currentRow = table.Rows[rowIndex];
                     List<MorningSchedule> schedules = day.UsersScheduledForMorning.ToList();
-                    currentRow = InsertPerson(currentRow, day, schedules[i].User.Name, schedules[i].IsRequest);
+                    morningRow = InsertPerson(morningRow, day, schedules[i].User.Name, schedules[i].IsRequest);
                 }
                 for (int i = 0; i < day.UsersScheduledForForenoon.Count; i++)
                 {
-                    var rowIndex = (rowCount - (max - 1)) + i;
-                    var currentRow = table.Rows[rowIndex];
                     List<Forenoonschedule> schedules = day.UsersScheduledForForenoon.ToList();
-                    currentRow = InsertPerson(currentRow, day, schedules[i].User.Name, schedules[i].IsRequest);
+                    forenoonRow = InsertPerson(forenoonRow, day, schedules[i].User.Name, schedules[i].IsRequest);
                 }
                 if (day.UsersOnHoliday.Count > 0)
                 {
@@ -149,9 +119,7 @@ namespace WorkSchedule.Application.Services.FileService
                     int index = 0;
                     while (day.UsersScheduledForMorning.Count + index < max)
                     {
-                        var rowIndex = (rowCount - max - index);
-                        var currentRow = table.Rows[rowIndex];
-                        currentRow = InsertPerson(currentRow, day, names[index], false, true);
+                        morningRow = InsertPerson(morningRow, day, names[index], false, true);
                         names.Remove(names[index]);
                         index++;
                     }
@@ -160,15 +128,47 @@ namespace WorkSchedule.Application.Services.FileService
                         index = 0;
                         while (day.UsersScheduledForForenoon.Count + index < max)
                         {
-                            var rowIndex = ((rowCount - index));
-                            var currentRow = table.Rows[rowIndex];
-                            currentRow = InsertPerson(currentRow, day, names[index], false, true);
+                            forenoonRow = InsertPerson(forenoonRow, day, names[index], false, true);
                             index++;
                         }
                     }
                 }
             }
-            table = SetBorders(table, max);
+            table = DeleteUnusedParagraphs(table);
+            table = SetBorders(table);
+            return table;
+        }
+
+        private Row InsertHoliday(Row row, Day day)
+        {
+            Cell cell = null;
+            switch (day.Date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    cell = row.Cells[1];
+                    break;
+                case DayOfWeek.Tuesday:
+                    cell = row.Cells[2];
+                    break;
+                case DayOfWeek.Wednesday:
+                    cell = row.Cells[3];
+                    break;
+                case DayOfWeek.Thursday:
+                    cell = row.Cells[4];
+                    break;
+                case DayOfWeek.Friday:
+                    cell = row.Cells[5];
+                    break;
+            }
+            if (cell is not null)
+            {
+                var paragraph = cell.Paragraphs[0];
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                paragraph.Append("Feiertag").Bold().FontSize(10);
+                paragraph.Alignment = Alignment.center;
+                paragraph.Color(Color.FromArgb(1, 255, 0, 0));
+            }
+            return row;
         }
 
         private Cell InsertHeader(Cell cell, string headerText)
@@ -180,33 +180,18 @@ namespace WorkSchedule.Application.Services.FileService
             return cell;
         }
 
-        private Table SetBorders(Table table, int max)
+        private Table SetBorders(Table table)
         {
             var thickBorder = new Border(BorderStyle.Tcbs_single, BorderSize.six, 0, Color.Black);
-            for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
+            foreach (var row in table.Rows)
             {
-                foreach (var cell in table.Rows[rowIndex].Cells)
+                foreach (var cell in row.Cells)
                 {
-                    if ((rowIndex + 1 + max * 2) % (max * 2 + 1) == 1 || rowIndex == 0)
-                    {
-                        cell.SetBorder(TableCellBorderType.Top, thickBorder);
-                        cell.SetBorder(TableCellBorderType.Left, thickBorder);
-                        cell.SetBorder(TableCellBorderType.Bottom, thickBorder);
-                        cell.SetBorder(TableCellBorderType.Right, thickBorder);
-                    }
-                    else
-                    {
-                        cell.SetBorder(TableCellBorderType.Right, thickBorder);
-                        if (rowIndex % ((max * 2) + 1) == max + 1)
-                        {
-                            cell.SetBorder(TableCellBorderType.Bottom, thickBorder);
-                        }
-                    }
+                    cell.SetBorder(TableCellBorderType.Top, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Left, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Bottom, thickBorder);
+                    cell.SetBorder(TableCellBorderType.Right, thickBorder);
                 }
-                table.Rows[rowIndex].Cells[0].SetBorder(TableCellBorderType.Top, thickBorder);
-                table.Rows[rowIndex].Cells[0].SetBorder(TableCellBorderType.Left, thickBorder);
-                table.Rows[rowIndex].Cells[0].SetBorder(TableCellBorderType.Bottom, thickBorder);
-                table.Rows[rowIndex].Cells[0].SetBorder(TableCellBorderType.Right, thickBorder);
             }
             return table;
         }
@@ -258,34 +243,37 @@ namespace WorkSchedule.Application.Services.FileService
 
         private Row InsertPerson(Row row, Day day, string name, bool isRequest, bool isHoliday = false)
         {
-            Paragraph paragraph = null;
+            Cell cell = null;
             switch (day.Date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
-                    paragraph = row.Cells[1].Paragraphs[0];
+                    cell = row.Cells[1];
                     break;
                 case DayOfWeek.Tuesday:
-                    paragraph = row.Cells[2].Paragraphs[0];
+                    cell = row.Cells[2];
                     break;
                 case DayOfWeek.Wednesday:
-                    paragraph = row.Cells[3].Paragraphs[0];
+                    cell = row.Cells[3];
                     break;
                 case DayOfWeek.Thursday:
-                    paragraph = row.Cells[4].Paragraphs[0];
+                    cell = row.Cells[4];
                     break;
                 case DayOfWeek.Friday:
-                    paragraph = row.Cells[5].Paragraphs[0];
+                    cell = row.Cells[5];
                     break;
             }
-            if (paragraph is not null)
+            if (cell is not null)
             {
-                AppendName(paragraph, name, isRequest, isHoliday);
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                AppendName(cell, name, isRequest, isHoliday);
             }
             return row;
         }
 
-        private void AppendName(Paragraph paragraph, string name, bool isRequest, bool isHoliday)
+        private void AppendName(Cell cell, string name, bool isRequest, bool isHoliday)
         {
+            var paragraph = cell.InsertParagraph();
+            paragraph.Alignment = Alignment.both;
             if (!isHoliday)
             {
                 paragraph.Append(name).Bold().FontSize(10);
@@ -300,6 +288,21 @@ namespace WorkSchedule.Application.Services.FileService
                 paragraph.Color(Color.FromArgb(1, 41, 134, 202));
             }
             paragraph.Alignment = Alignment.center;
+        }
+
+        private Table DeleteUnusedParagraphs(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                foreach (var cell in row.Cells)
+                {
+                    if (cell.Paragraphs.Count != 1)
+                    {
+                        cell.RemoveParagraph(cell.Paragraphs[0]);
+                    }
+                }
+            }
+            return table;
         }
     }
 }

@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WorkSchedule.Api.Commands.Requests;
 using WorkSchedule.Api.Queries.Requests;
+using WorkSchedule.Application.Hubs;
 
 namespace Controllers
 {
@@ -13,9 +15,11 @@ namespace Controllers
     public class RequestsController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public RequestsController(IMediator mediator)
+        private readonly IHubContext<ScheduleHub, IHubClient> _hubContext;
+        public RequestsController(IMediator mediator, IHubContext<ScheduleHub, IHubClient> hubContext)
         {
             _mediator = mediator;
+            _hubContext = hubContext;
         }
 
         [Authorize(Roles = "Administrator")]
@@ -29,8 +33,9 @@ namespace Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] AddNewRequestCommand command)
         {
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            await _mediator.Send(command);
+            await _hubContext.Clients.All.RequestCreatedEvent();
+            return Ok();
         }
 
         [HttpGet("years/{userId}")]
@@ -43,18 +48,9 @@ namespace Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAllRequestsForUser(Guid userId)
         {
-            var requests = await _mediator.Send(new GetAllRequestsForUserQuery() { UserId = userId });
-            return Ok(requests);
-        }
-
-        [HttpGet("{userId}/{year}/{month}")]
-        public async Task<IActionResult> GetAllRequestsForUserByDate(Guid userId, int year, int month)
-        {
             var requests = await _mediator.Send(
-                new GetAllRequestsForUserByDateQuery()
+                new GetAllRequestsForUserQuery
                 {
-                    Month = month,
-                    Year = year,
                     UserId = userId
                 });
             return Ok(requests);
@@ -64,6 +60,7 @@ namespace Controllers
         public async Task<IActionResult> DeleteRequest([FromBody] DeleteRequestCommand deleteCommand)
         {
             await _mediator.Send(deleteCommand);
+            await _hubContext.Clients.All.RequestDeletedEvent();
             return NoContent();
         }
     }

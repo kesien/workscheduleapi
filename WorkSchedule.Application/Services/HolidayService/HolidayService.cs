@@ -13,21 +13,21 @@ namespace WorkSchedule.Application.Services.HolidayService
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Holiday>? Add(DateTime date, bool isFix)
+        public async Task<Holiday>? Add(int year, int month, int day, bool isFix)
         {
-            var holidays = await Find(h => h.Day == date.Day && h.Month == date.Month);
+            var holidays = await Find(h => h.Day == day && h.Month == month);
             if (holidays.Any() && isFix)
             {
                 return null;
             }
-            if (!isFix && holidays.Where(h => h.Year == date.Year).Any())
+            if (!isFix && holidays.Where(h => h.Year == year).Any())
             {
                 return null;
             }
-            var holiday = new Holiday() { Day = date.Day, Month = date.Month, IsFix = isFix };
+            var holiday = new Holiday() { Day = day, Month = month, IsFix = isFix };
             if (!isFix)
             {
-                holiday.Year = date.Year;
+                holiday.Year = year;
             }
             await _unitOfWork.HolidayRepository.Add(holiday);
             _unitOfWork.Save();

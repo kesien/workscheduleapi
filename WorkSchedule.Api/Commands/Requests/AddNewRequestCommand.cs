@@ -1,16 +1,15 @@
 ﻿using FluentValidation;
 using MediatR;
 using WorkSchedule.Api.Constants;
-using WorkSchedule.Api.Dtos;
 
 namespace WorkSchedule.Api.Commands.Requests
 {
-    public class AddNewRequestCommand : IRequest<RequestDto>
+    public class AddNewRequestCommand : IRequest<Unit>
     {
         private DateTime _date;
         public Guid UserId { get; set; }
-        public DateTime Date 
-        { 
+        public DateTime Date
+        {
             get
             {
                 return _date;
@@ -27,16 +26,16 @@ namespace WorkSchedule.Api.Commands.Requests
     {
         public AddNewRequestCommandValidator()
         {
-            RuleFor(c => c.UserId).NotNull().WithMessage("{PropertyName} is required!");
+            RuleFor(c => c.UserId).NotNull();
             RuleFor(c => c.Date)
                 .Cascade(CascadeMode.Stop)
-                .NotNull().WithMessage("{PropertyName} is required!")
-                .Must(BeAValidDate).WithMessage("{PropertyName} must be a valid date!")
-                .Must(BeInTheFuture).WithMessage("Invalid date! You can't create a request in the past!")
-                .Must(NotBeWeekend).WithMessage("Invalid date! You can't create a request on weekends!")
-                .NotEmpty().WithMessage("{PropertyName} shouldn't be empty!");
+                .NotNull()
+                .Must(BeAValidDate)
+                .Must(BeInTheFuture)
+                .Must(NotBeWeekend)
+                .NotEmpty();
             RuleFor(c => c.Type)
-                .NotNull().WithMessage("{PropertyName} is required!");
+                .NotNull();
         }
 
         private bool BeAValidDate(DateTime date)

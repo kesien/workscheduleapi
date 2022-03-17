@@ -24,7 +24,7 @@ namespace WorkSchedule.Application.QueryHandlers.Files
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "The requested file doesn't exists!" } };
             }
-            var bytes = await _dropbox.GetFile($"/{file.FilePath}");
+            var bytes = await _dropbox.GetFile($"{file.FileName}");
             if (bytes is null)
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "The requested file doesn't exists on DropBox!" } };

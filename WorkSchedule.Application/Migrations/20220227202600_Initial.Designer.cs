@@ -12,7 +12,7 @@ using WorkSchedule.Application.Persistency;
 namespace WorkSchedule.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220222202642_Initial")]
+    [Migration("20220227202600_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,7 +101,7 @@ namespace WorkSchedule.Application.Migrations
                     b.Property<int>("Month")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Year")
+                    b.Property<int>("Year")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -222,14 +222,14 @@ namespace WorkSchedule.Application.Migrations
                         new
                         {
                             Id = new Guid("ffc59f07-0034-4f83-b673-f21da9179c9d"),
-                            ConcurrencyStamp = "601f95c4-be5d-41cc-830e-31fe04844d56",
+                            ConcurrencyStamp = "c59313f3-ea83-4ec3-bf06-bed71db3ecff",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = new Guid("1da58f4d-44e9-4460-b4b9-3877481affb1"),
-                            ConcurrencyStamp = "10361b9d-4433-4b82-8fe7-f28f52b4840e",
+                            ConcurrencyStamp = "1c909ef3-a88e-4dc8-8ecb-50e92807ea81",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

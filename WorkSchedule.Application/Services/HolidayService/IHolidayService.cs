@@ -1,12 +1,11 @@
 using System.Linq.Expressions;
-using WorkSchedule.Api.Dtos;
 using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.HolidayService
 {
     public interface IHolidayService
     {
-        Task<Holiday>? Add(DateTime date, bool isFix);
+        Task<Holiday>? Add(int year, int month, int day, bool isFix);
         Task<bool> Delete(Guid id);
         Task<IEnumerable<Holiday>> GetAll();
         Task<Holiday> GetByDate(DateTime date);
