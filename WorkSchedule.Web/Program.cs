@@ -28,7 +28,7 @@ builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials()
-    .WithOrigins("http://localhost:4200", "https://kesien.github.io/workschedule");
+    .WithOrigins("http://localhost:4200", "https://kesien.github.io");
 }));
 
 builder.Services.AddSwaggerGen(options =>
