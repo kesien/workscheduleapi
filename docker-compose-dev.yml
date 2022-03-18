@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  workschedule-postgres:
+    container_name: workschedule-postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: flying
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "flying", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    ports:
+      - "5432:5432"
+    networks:
+      - workscheduleapi
+  workschedule-pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    volumes: 
+      - "./data/pgadmin:/var/lib/pgadmin"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - workscheduleapi 
+networks:
+  workscheduleapi:
+    name: workscheduleapi
