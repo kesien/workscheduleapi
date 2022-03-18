@@ -13,15 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration));
 bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-//var logger = new LoggerConfiguration()
-//    .ReadFrom.Configuration(builder.Configuration)
-//    .CreateLogger();
 
-
-//builder.Logging.ClearProviders();
-//builder.Logging.AddSerilog()
-
-// Add services to the container.
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.ConfigureApplicationServices();
 builder.Services.AddApplicationServices(builder.Configuration);
@@ -36,7 +28,7 @@ builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials()
-    .WithOrigins("http://localhost:4200");
+    .WithOrigins("http://localhost:4200", "https://kesien.github.io/workschedule");
 }));
 
 builder.Services.AddSwaggerGen(options =>
