@@ -27,7 +27,7 @@ namespace WorkSchedule.Application.Services.FileService
                 var scheduleTable = document.Tables[0];
                 var summaryTable = document.Tables[1];
 
-                GenerateScheduleTable(schedule, scheduleTable);
+                GenerateScheduleTable(schedule, scheduleTable, max);
                 GenerateSummaryTable(schedule, summaryTable);
                 if (!Directory.Exists($"./SavedDocuments"))
                 {
@@ -66,7 +66,7 @@ namespace WorkSchedule.Application.Services.FileService
             }
         }
 
-        private Table GenerateScheduleTable(MonthlySchedule schedule, Table table)
+        private Table GenerateScheduleTable(MonthlySchedule schedule, Table table, int max)
         {
             int rowCount = 0;
             var days = schedule.Days.OrderBy(day => day.Date).ToList();
@@ -102,7 +102,6 @@ namespace WorkSchedule.Application.Services.FileService
                     morningRow = InsertHoliday(morningRow, day);
                     forenoonRow = InsertHoliday(forenoonRow, day);
                 }
-                var max = Math.Max(day.UsersScheduledForMorning.Count, day.UsersScheduledForForenoon.Count);
                 for (int i = 0; i < day.UsersScheduledForMorning.Count; i++)
                 {
                     List<MorningSchedule> schedules = day.UsersScheduledForMorning.ToList();
