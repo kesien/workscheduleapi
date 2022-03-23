@@ -248,6 +248,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             {
                 schedule.WordFile = newWordFile;
             }
+            _unitOfWork.Save();
         }
         #endregion
 
