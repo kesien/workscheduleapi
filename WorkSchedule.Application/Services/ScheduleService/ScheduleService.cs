@@ -221,6 +221,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             }
             schedule.Summaries = GenerateSummary(userSchedules);
             await UpdateWordFile(schedule.Year, schedule.Month, (int)Math.Ceiling(users.Count() / 2.0));
+            _unitOfWork.Save();
             return schedule;
         }
 
