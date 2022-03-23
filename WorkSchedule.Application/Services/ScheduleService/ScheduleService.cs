@@ -220,8 +220,8 @@ namespace WorkSchedule.Application.Services.ScheduleService
                 _unitOfWork.SummaryRepository.Delete(summary);
             }
             schedule.Summaries = GenerateSummary(userSchedules);
-            await UpdateWordFile(schedule.Year, schedule.Month, (int)Math.Ceiling(users.Count() / 2.0));
             _unitOfWork.Save();
+            await UpdateWordFile(schedule.Year, schedule.Month, (int)Math.Ceiling(users.Count() / 2.0));
             return schedule;
         }
 
