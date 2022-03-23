@@ -34,7 +34,7 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { $"Couldn't update schedule with Id: {request.Id}" } };
             }
             _logger.Information($"Schedule for: {result.Year}-{result.Month} with ID: {result.Id} has been updated!");
-            await _emailService.SendScheduleModifiedEmail(request.UserId.ToString(), request.Days[0].Date.Year, request.Days[0].Date.Month);
+            //await _emailService.SendScheduleModifiedEmail(request.UserId.ToString(), request.Days[0].Date.Year, request.Days[0].Date.Month);
             return Unit.Value;
         }
     }
