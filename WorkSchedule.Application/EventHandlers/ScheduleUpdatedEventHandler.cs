@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using WorkSchedule.Application.Services.EmailService;
 
 namespace WorkSchedule.Application.EventHandlers
 {
-    public class ScheduleUpdatedEventHandler
+    public class ScheduleUpdatedEventHandler : INotificationHandler<ScheduleUpdatedEvent>
     {
         private readonly IDropboxService _dropBoxService;
         private readonly IEmailService _emailService;
