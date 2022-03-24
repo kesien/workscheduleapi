@@ -12,6 +12,7 @@ namespace WorkSchedule.Api.Commands.Users
         public string? Name { get; set; }
         public string? Password { get; set; }
         public UserRole? Role { get; set; }
+        public bool? ReceiveEmails { get; set; }
     }
 
     public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>

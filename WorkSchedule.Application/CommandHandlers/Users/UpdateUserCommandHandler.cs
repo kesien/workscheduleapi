@@ -41,6 +41,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
                 userToChange.PasswordHash = passwordHash;
             }
             userToChange.UserName = request.Username ?? userToChange.UserName;
+            userToChange.ReceiveEmails = request.ReceiveEmails ?? userToChange.ReceiveEmails;
             if (request.Name is not null && request.Name != userToChange.Name)
             {
                 userToChange.Name = request.Name;

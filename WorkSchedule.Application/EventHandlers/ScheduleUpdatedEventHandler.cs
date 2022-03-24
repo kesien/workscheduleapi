@@ -50,8 +50,6 @@ namespace WorkSchedule.Application.EventHandlers
                 File.Delete(filePath);
             }
         };
-
-        //await _emailService.SendNewScheduleEmail(notification.UserId, notification.Schedule.Year, notification.Schedule.Month);
     }
 
     private MemoryStream LoadFile(string filePath)
