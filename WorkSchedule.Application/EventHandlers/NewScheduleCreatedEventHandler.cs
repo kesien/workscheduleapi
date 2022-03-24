@@ -41,7 +41,7 @@ namespace WorkSchedule.Application.EventHandlers
                 }
             };
 
-            //await _emailService.SendNewScheduleEmail(notification.UserId, notification.Schedule.Year, notification.Schedule.Month);
+            await _emailService.SendNewScheduleEmail(notification.UserId, notification.Schedule.Year, notification.Schedule.Month);
         }
 
         private MemoryStream LoadFile(string filePath)

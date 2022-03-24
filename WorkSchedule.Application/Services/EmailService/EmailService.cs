@@ -55,7 +55,7 @@ namespace WorkSchedule.Application.Services.EmailService
         private List<Dictionary<string, string>> GetUsers()
         {
             var users = _userManager.Users.ToList();
-            return users.Select(user => new Dictionary<string, string>()
+            return users.Where(user => user.ReceiveEmails).Select(user => new Dictionary<string, string>()
             {
                 { "Email", user.UserName },
                 { "Name", user.Name }

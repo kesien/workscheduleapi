@@ -11,5 +11,6 @@ namespace WorkSchedule.Application.Persistency.Entities
         public ICollection<Forenoonschedule> ForenoonSchedules { get; set; }
         public ICollection<HolidaySchedule> HolidaySchedules { get; set; }
         public UserRole Role { get; set; }
+        public bool ReceiveEmails { get; set; }
     }
 }
