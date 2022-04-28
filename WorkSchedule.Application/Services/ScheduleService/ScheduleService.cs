@@ -48,7 +48,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
                     continue;
                 }
                 schedule.NumOfWorkdays++;
-                var maxNumberOfUsersForMorning = dayIndex % 2 == 0 ? users.Count() / 2 : (int)Math.Ceiling(users.Count() / 2.0);
+                var maxNumberOfUsersForMorning = dayIndex % 2 == 0 ? (users.Count() - day.UsersOnHoliday.Count) / 2 : (int)Math.Ceiling((users.Count() - day.UsersOnHoliday.Count) / 2.0);
                 if (dayIndex % 2 == 0)
                 {
                     day = GenerateMorningSchedules(helperCounter, maxNumberOfUsersForMorning, day, userSchedules);
@@ -60,18 +60,25 @@ namespace WorkSchedule.Application.Services.ScheduleService
                     List<MorningSchedule> morningSchedules = new();
                     if (!previousDay.IsHoliday && !previousDay.IsWeekend)
                     {
-                        morningSchedules = usersNotScheduledYet.Where(schedule =>
+                        var notScheduledForMorning = usersNotScheduledYet.Where(schedule =>
                             previousDay.UsersScheduledForForenoon.Where(user =>
                                 user.User.Id == schedule.User.Id).Any() ||
-                                previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any())
-                            .Select(schedule => new MorningSchedule { User = schedule.User })
-                            .ToList();
+                                previousDay.UsersOnHoliday.Where(user => user.User.Id == schedule.User.Id).Any()).ToList();
+                        foreach (var user in notScheduledForMorning)
+                        {
+                            if (day.UsersScheduledForMorning.Count + morningSchedules.Count < maxNumberOfUsersForMorning)
+                            {
+                                morningSchedules.Add(new MorningSchedule { User = user.User });
+                                usersNotScheduledYet.Remove(user);
+                            }
+                        }
                     }
                     if ((morningSchedules.Count == 0 || morningSchedules.Count < maxNumberOfUsersForMorning) && usersNotScheduledYet.Count != 0)
                     {
-                        while (morningSchedules.Count < maxNumberOfUsersForMorning)
+                        while (day.UsersScheduledForMorning.Count + morningSchedules.Count < maxNumberOfUsersForMorning)
                         {
-                            var randomUserSchedule = usersNotScheduledYet[_random.Next(usersNotScheduledYet.Count)];
+                            var randomIndex = usersNotScheduledYet.Count == 0 ? 0 : _random.Next(usersNotScheduledYet.Count);
+                            var randomUserSchedule = usersNotScheduledYet[randomIndex];
                             if (!morningSchedules.Select(s => s.User.Id).Any(id => id == randomUserSchedule.User.Id))
                             {
                                 morningSchedules.Add(new MorningSchedule { User = randomUserSchedule.User });
