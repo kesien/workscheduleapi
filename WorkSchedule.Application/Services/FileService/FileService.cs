@@ -79,7 +79,7 @@ namespace WorkSchedule.Application.Services.FileService
             {
                 var day = days[dayIndex];
 
-                if (dayIndex == 0 && day.IsWeekend)
+                if ((dayIndex == 0 || day.Date.DayOfWeek == DayOfWeek.Sunday) && day.IsWeekend)
                 {
                     continue;
                 }
@@ -114,20 +114,21 @@ namespace WorkSchedule.Application.Services.FileService
                 }
                 if (day.UsersOnHoliday.Count > 0)
                 {
-                    List<string> names = day.UsersOnHoliday.Select(holiday => holiday.User.Name).ToList();
+                    var usersOnHoliday = day.UsersOnHoliday.Select(holiday => holiday.User.Name).ToArray();
                     int index = 0;
-                    while (day.UsersScheduledForMorning.Count + index < max)
+                    while (day.UsersScheduledForMorning.Count + index < max && usersOnHoliday.Length != 0)
                     {
-                        morningRow = InsertPerson(morningRow, day, names[index], false, true);
-                        names.Remove(names[index]);
-                        index++;
+                        var name = usersOnHoliday[index];
+                        morningRow = InsertPerson(morningRow, day, name, false, true);
+                        usersOnHoliday = usersOnHoliday.Where((user) => user != name).ToArray();
                     }
-                    if (names.Count > 0)
+                    if (usersOnHoliday.Length > 0)
                     {
                         index = 0;
+                        var name = usersOnHoliday[index];
                         while (day.UsersScheduledForForenoon.Count + index < max)
                         {
-                            forenoonRow = InsertPerson(forenoonRow, day, names[index], false, true);
+                            forenoonRow = InsertPerson(forenoonRow, day, name, false, true);
                             index++;
                         }
                     }
