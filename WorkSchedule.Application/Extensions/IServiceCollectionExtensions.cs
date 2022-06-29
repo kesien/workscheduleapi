@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +10,6 @@ using System.Text;
 using WorkSchedule.Api.Commands.Holidays;
 using WorkSchedule.Application.Helpers;
 using WorkSchedule.Application.Persistency;
-using WorkSchedule.Application.Persistency.Entities;
 using WorkSchedule.Application.Services.DropboxService;
 using WorkSchedule.Application.Services.EmailService;
 using WorkSchedule.Application.Services.FileService;
