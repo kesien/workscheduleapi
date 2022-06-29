@@ -6,6 +6,6 @@ namespace WorkSchedule.Application.Events
     public class NewScheduleCreatedEvent : INotification
     {
         public MonthlySchedule Schedule { get; set; }
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

@@ -3,8 +3,8 @@ using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Serilog;
+using WorkSchedule.Application.Data;
 using WorkSchedule.Application.Helpers;
-using WorkSchedule.Application.Persistency.Entities;
 
 namespace WorkSchedule.Application.Services.EmailService
 {
@@ -12,30 +12,30 @@ namespace WorkSchedule.Application.Services.EmailService
     {
         private readonly SendGridClient _sendGridClient;
         private readonly EmailClientSettings _settings;
-        private readonly UserManager<User> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
-        public EmailService(IOptions<EmailClientSettings> options, UserManager<User> userManager, ILogger logger)
+        public EmailService(IOptions<EmailClientSettings> options, ILogger logger, IUnitOfWork unitOfWork)
         {
             _settings = options.Value;
             _sendGridClient = new SendGridClient(_settings.ApiKey);
-            _userManager = userManager;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Response> SendNewScheduleEmail(string adminId, int year, int month)
+        public async Task<Response> SendNewScheduleEmail(Guid adminId, int year, int month)
         {
             return await SendEmail(_settings.NewScheduleTemplateId, adminId, year, month);
         }
 
-        private async Task<Response> SendEmail(string templateId, string adminId, int year, int month)
+        private async Task<Response> SendEmail(string templateId, Guid adminId, int year, int month)
         {
             bool IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-            if (IsDevelopment)
-            {
-                return null;
-            }
+            //if (IsDevelopment)
+            //{
+            //    return null;
+            //}
             var adminName = await GetAdminName(adminId);
-            var users = GetUsers();
+            var users = await GetUsers();
             var data = new List<object>();
             foreach (var user in users)
             {
@@ -47,14 +47,14 @@ namespace WorkSchedule.Application.Services.EmailService
             return await _sendGridClient.SendEmailAsync(msg);
         }
 
-        public async Task<Response> SendScheduleModifiedEmail(string adminId, int year, int month)
+        public async Task<Response> SendScheduleModifiedEmail(Guid adminId, int year, int month)
         {
             return await SendEmail(_settings.ScheduleModifiedTemplateId, adminId, year, month);
         }
 
-        private List<Dictionary<string, string>> GetUsers()
+        private async Task<List<Dictionary<string, string>>> GetUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _unitOfWork.UserRepository.Get(user => user.ReceiveEmails);
             return users.Where(user => user.ReceiveEmails).Select(user => new Dictionary<string, string>()
             {
                 { "Email", user.UserName },
@@ -62,9 +62,9 @@ namespace WorkSchedule.Application.Services.EmailService
             }).ToList();
         }
 
-        private async Task<string> GetAdminName(string id)
+        private async Task<string> GetAdminName(Guid id)
         {
-            var admin = await _userManager.FindByIdAsync(id);
+            var admin = await _unitOfWork.UserRepository.GetByID(id);
             return admin.Name;
         }
     }
