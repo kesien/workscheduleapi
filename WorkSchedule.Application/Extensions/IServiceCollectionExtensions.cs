@@ -79,6 +79,7 @@ namespace WorkSchedule.Application.Extensions
                 options.NewScheduleTemplateId = configuration["EmailClientSettings:NewScheduleTemplateId"];
                 options.ScheduleModifiedTemplateId = configuration["EmailClientSettings:ScheduleModifiedTemplateId"];
             });
+
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IDropboxService, DropboxService>();
             services.AddScoped<IScheduleService, ScheduleService>();

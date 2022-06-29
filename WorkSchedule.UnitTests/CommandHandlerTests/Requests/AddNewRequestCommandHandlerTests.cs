@@ -41,7 +41,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
         {
             var command = new AddNewRequestCommand
             {
-                Date = DateTime.Parse("2022-04-04"),
+                Date = DateTime.Parse("2030-04-04"),
                 Type = Api.Constants.RequestType.MORNING,
                 UserId = Guid.Parse("ce17f790-3a10-4f0e-b2cf-558f1da49d52")
             };
@@ -52,7 +52,7 @@ namespace WorkSchedule.UnitTests.CommandHandlerTests.Requests
             var request = requests.Last();
 
             requests.Count().Should().Be(3);
-            request.Date.Should().Be(DateTime.Parse("2022-04-04"));
+            request.Date.Should().Be(DateTime.Parse("2030-04-04"));
             request.Id.GetType().Should().Be(typeof(Guid));
             request.Type.Should().Be(Api.Constants.RequestType.MORNING);
             request.User.Id.Should().Be("ce17f790-3a10-4f0e-b2cf-558f1da49d52");

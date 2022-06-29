@@ -42,7 +42,7 @@ namespace WorkSchedule.Application.CommandHandlers.Schedules
             }
 
             _logger.Information($"Schedule for: {newSchedule.Year}-{newSchedule.Month} with ID: {newSchedule.Id} has been created!");
-            await _publisher.Publish(new NewScheduleCreatedEvent { Schedule = newSchedule, UserId = request.UserId }, PublishStrategy.ParallelNoWait, CancellationToken.None);
+            await _publisher.Publish(new NewScheduleCreatedEvent { Schedule = newSchedule, UserId = request.UserId }, PublishStrategy.Async, CancellationToken.None);
             return Unit.Value;
         }
     }
