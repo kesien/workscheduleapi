@@ -54,7 +54,7 @@ namespace WorkSchedule.Application.Services.EmailService
 
         private async Task<List<Dictionary<string, string>>> GetUsers()
         {
-            var users = await _unitOfWork.UserRepository.Get(user => user.ReceiveEmails);
+            var users = await _unitOfWork.UserRepository.Get(user => user.ReceiveEmails && user.Role != Constants.UserRole.SUPERADMIN);
             return users.Where(user => user.ReceiveEmails).Select(user => new Dictionary<string, string>()
             {
                 { "Email", user.UserName },

@@ -32,6 +32,12 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             var user = await _userManager.FindByIdAsync(request.Id);
             if (user != null)
             {
+                var role = await _userManager.GetRolesAsync(user);
+                if (role.Contains("Superadmin"))
+                {
+                    throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to delete this user!" } };
+                }
+
                 await _userManager.DeleteAsync(user);
                 _logger.Information($"User with ID: {user.Id} has been deleted");
             }

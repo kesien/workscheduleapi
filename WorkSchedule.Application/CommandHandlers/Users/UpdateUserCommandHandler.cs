@@ -31,7 +31,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             var requester = await _userManager.FindByIdAsync(request.RequesterId);
             var requesterRoles = await _userManager.GetRolesAsync(requester);
             var userToChange = await _userManager.FindByIdAsync(request.Id);
-            if (userToChange is null || (request.RequesterId != request.Id && !requesterRoles.Contains("Administrator")))
+            if (userToChange is null || (request.RequesterId != request.Id && !requesterRoles.Contains("Administrator") || !requesterRoles.Contains("Superadmin")))
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have enough permission!" } };
             }
@@ -45,9 +45,12 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             if (request.Name is not null && request.Name != userToChange.Name)
             {
                 userToChange.Name = request.Name;
-                await UpdateSummaries(userToChange.Id, request.Name);
+                if (userToChange.Role != Constants.UserRole.SUPERADMIN)
+                {
+                    await UpdateSummaries(userToChange.Id, request.Name);
+                }
             }
-            if (requesterRoles.Contains("Administrator") && request.Role is not null)
+            if (requesterRoles.Contains("Administrator") || requesterRoles.Contains("Superadmin") && request.Role is not null && request.Role != Api.Constants.UserRole.SUPERADMIN)
             {
                 userToChange.Role = (Constants.UserRole)request.Role;
                 await _userManager.AddToRoleAsync(userToChange, request.Role == Api.Constants.UserRole.ADMIN ? "ADMINISTRATOR" : "USER");

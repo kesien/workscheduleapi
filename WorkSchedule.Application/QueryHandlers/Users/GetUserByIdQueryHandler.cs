@@ -28,7 +28,7 @@ namespace WorkSchedule.Application.QueryHandlers.Users
             var requesterUser = await _userManager.FindByIdAsync(request.RequesterId);
             var requesterRoles = await _userManager.GetRolesAsync(requesterUser);
             var user = await _userManager.FindByIdAsync(request.Id);
-            if (user is null || (request.Id != request.RequesterId && !requesterRoles.Contains("Administrator")))
+            if (user is null || request.Id != request.RequesterId && (!requesterRoles.Contains("Administrator") || !requesterRoles.Contains("Superadmin")))
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have permission to access this data!" } };
             }

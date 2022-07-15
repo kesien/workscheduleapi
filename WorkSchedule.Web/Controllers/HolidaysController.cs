@@ -9,7 +9,7 @@ using WorkSchedule.Application.Hubs;
 
 namespace Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Superadmin,Administrator")]
     [ApiController]
     [Route("api/[controller]")]
     public class HolidaysController : ControllerBase

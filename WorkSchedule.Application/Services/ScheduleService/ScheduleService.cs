@@ -32,7 +32,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
         public async Task<MonthlySchedule?> CreateSchedule(int year, int month)
         {
             var schedule = await CreateBlankScheduleWithRequests(year, month);
-            var users = await _unitOfWork.UserRepository.Get();
+            var users = await _unitOfWork.UserRepository.Get(user => user.Role != Constants.UserRole.SUPERADMIN);
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             var days = (schedule.Days as List<Day>);
 
@@ -182,7 +182,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             }
             var days = await _unitOfWork.DayRepository.Get(day => day.Date.Year == schedule.Year && day.Date.Month == schedule.Month,
                 null, "UsersScheduledForMorning,UsersScheduledForForenoon,UsersOnHoliday");
-            var users = await _unitOfWork.UserRepository.Get();
+            var users = await _unitOfWork.UserRepository.Get(user => user.Role != Constants.UserRole.SUPERADMIN);
             var userSchedules = users.Select(user => new UserSchedule { User = user }).ToList();
             foreach (var dayDto in dayDtos)
             {
@@ -267,7 +267,7 @@ namespace WorkSchedule.Application.Services.ScheduleService
             schedule.Year = year;
             schedule.Month = month;
             schedule.Id = Guid.NewGuid();
-            var requests = await _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month, null, "User");
+            var requests = await _unitOfWork.RequestRepository.Get(request => request.Date.Year == year && request.Date.Month == month && request.User.Role != Constants.UserRole.SUPERADMIN, null, "User");
             for (var i = 0; i < schedule.Days.Count; i++)
             {
                 var date = DateTime.Parse($"{year}-{month}-{i + 1}");
