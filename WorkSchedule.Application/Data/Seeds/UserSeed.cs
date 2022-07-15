@@ -24,6 +24,12 @@ namespace WorkSchedule.Application.Data.Seeds
                         Id = Guid.Parse("1da58f4d-44e9-4460-b4b9-3877481affb1"),
                         Name = "Administrator",
                         NormalizedName = "ADMINISTRATOR"
+                    },
+                    new Role
+                    {
+                        Id = Guid.Parse("3a1a2c1e-d7ee-4cbc-b054-9610f6d851a2"),
+                        Name = "Superadmin",
+                        NormalizedName = "SUPERADMIN"
                     }
                 };
                 foreach (var role in roles)
@@ -48,14 +54,14 @@ namespace WorkSchedule.Application.Data.Seeds
                     {
                         UserName = adminUserName,
                         Name = adminName,
-                        Role = UserRole.ADMIN
+                        Role = UserRole.SUPERADMIN
                     }
                 };
 
                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 {
                     // Add test users
-                    for (int i = 1; i <= 5; i++)
+                    for (int i = 1; i <= 6; i++)
                     {
                         users.Add(new User
                         {
@@ -68,12 +74,19 @@ namespace WorkSchedule.Application.Data.Seeds
 
                 foreach (var user in users)
                 {
+                    if (user.Role == UserRole.SUPERADMIN)
+                    {
+                        userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
+                        userManager.AddToRoleAsync(user, "Superadmin").GetAwaiter().GetResult();
+                    }
+
                     if (user.Role == UserRole.ADMIN)
                     {
                         userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
                         userManager.AddToRoleAsync(user, "Administrator").GetAwaiter().GetResult();
                     }
-                    else
+
+                    if (user.Role == UserRole.USER)
                     {
                         userManager.CreateAsync(user, password).GetAwaiter().GetResult();
                         userManager.AddToRoleAsync(user, "User").GetAwaiter().GetResult();
