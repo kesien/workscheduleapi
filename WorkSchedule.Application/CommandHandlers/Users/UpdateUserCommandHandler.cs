@@ -31,7 +31,7 @@ namespace WorkSchedule.Application.CommandHandlers.Users
             var requester = await _userManager.FindByIdAsync(request.RequesterId);
             var requesterRoles = await _userManager.GetRolesAsync(requester);
             var userToChange = await _userManager.FindByIdAsync(request.Id);
-            if (userToChange is null || (request.RequesterId != request.Id && !requesterRoles.Contains("Administrator") || !requesterRoles.Contains("Superadmin")))
+            if (userToChange is null || (request.RequesterId != request.Id && (!requesterRoles.Contains("Administrator") && !requesterRoles.Contains("Superadmin"))))
             {
                 throw new BusinessException { ErrorCode = 599, ErrorMessages = new List<string> { "You don't have enough permission!" } };
             }
