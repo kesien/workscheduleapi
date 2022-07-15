@@ -22,7 +22,7 @@ namespace Controllers
             _hubContext = hubContext;
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetAllRequestsForAllUsers()
         {

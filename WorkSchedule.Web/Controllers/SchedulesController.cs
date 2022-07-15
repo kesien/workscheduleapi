@@ -29,7 +29,7 @@ namespace Controllers
             return Ok(schedule);
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpPost]
         public async Task<IActionResult> CreateSchedule([FromBody] AddNewScheduleCommand addNewScheduleCommand)
         {
@@ -37,7 +37,7 @@ namespace Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpDelete]
         public async Task<IActionResult> DeleteSchedule([FromBody] DeleteScheduleCommand deleteCommand)
         {
@@ -45,7 +45,7 @@ namespace Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpPut]
         public async Task<IActionResult> UpdateSchedule([FromBody] UpdateScheduleCommand updateCommand)
         {

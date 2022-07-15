@@ -20,6 +20,12 @@ namespace WorkSchedule.Application.Persistency
                     Id = Guid.Parse("1da58f4d-44e9-4460-b4b9-3877481affb1"),
                     Name = "Administrator",
                     NormalizedName = "ADMINISTRATOR"
+                },
+                new Role
+                {
+                    Id = Guid.Parse("3a1a2c1e-d7ee-4cbc-b054-9610f6d851a2"),
+                    Name = "Superadmin",
+                    NormalizedName = "SUPERADMIN"
                 }
             );
         }

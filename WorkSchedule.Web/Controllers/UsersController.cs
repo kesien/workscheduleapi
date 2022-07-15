@@ -23,7 +23,7 @@ namespace Controllers
             _hubContext = hubContext;
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -31,7 +31,7 @@ namespace Controllers
             return Ok(users);
         }
 
-        [Authorize(Roles = "Administrator,User")]
+        [Authorize(Roles = "Superadmin,Administrator,User")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(string id)
         {
@@ -45,7 +45,7 @@ namespace Controllers
             return Ok(user);
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] AddNewUserCommand addNewUserCommand)
         {
@@ -54,7 +54,7 @@ namespace Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator,User")]
+        [Authorize(Roles = "Superadmin,Administrator,User")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand updateUserCommand)
         {
@@ -63,7 +63,7 @@ namespace Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Superadmin,Administrator")]
         [HttpDelete]
         public async Task<IActionResult> DeleteUser([FromBody] DeleteUserCommand deleteUserCommand)
         {
